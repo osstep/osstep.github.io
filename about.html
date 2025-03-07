@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Редактор кода</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+    <style>
+      .CodeMirror {
+        height: 200px;
+        border: 1px solid #ccc;
+      }
+    </style>
+  </head>
+  <body>
+    <h3>Напиши код:</h3>
+    <textarea id="codeEditor"></textarea>
+    <button onclick="checkCode()">Проверить</button>
+    <p id="result"></p>
+
+    <script>
+      // Инициализируем редактор
+      var editor = CodeMirror.fromTextArea(document.getElementById('codeEditor'), {
+        mode: 'javascript',
+        lineNumbers: true,
+      });
+
+      function checkCode() {
+        // Получаем код из редактора
+        let studentCode = editor.getValue().trim();
+
+        // Убираем лишние пробелы
+        studentCode = studentCode.replace(/\s+/g, ' ').trim();
+
+        // Эталонный код
+        const expectedCode = "test('test');";
+
+        // Проверяем совпадение
+        const isCorrect = studentCode === expectedCode;
+
+        // Вывод результата
+        document.getElementById('result').innerText = isCorrect
+          ? '✅ Код верный!'
+          : '❌ Код неверный!';
+      }
+    </script>
+  </body>
+</html>
