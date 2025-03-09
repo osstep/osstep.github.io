@@ -35,6 +35,13 @@
         font-weight: bold;
         margin-top: 20px;
       }
+      #viewAnswerButton {
+        display: none;
+        margin-top: 20px;
+      }
+      #additionalCodeEditor {
+        margin-top: 20px;
+      }
     </style>
   </head>
   <body>
@@ -43,26 +50,38 @@
       Напиши тест, который проверяет, что элемент с id header имеет класс active. Используй метод
       page.locator() и expect().toHaveClass().
     </p>
-    <textarea id="codeEditor">
-      test('проверить класс элемента на example.com', async ({ page }) => {
-        await page.goto('https://example.com');
-        await //ваш код
-    });
-      </textarea
-    >
+    <textarea id="codeEditor"> </textarea>
     <button onclick="checkCode()">Проверить</button>
+    <button id="viewAnswerButton" onclick="showAdditionalCodeEditor()">Посмотреть ответ</button>
     <p id="result"></p>
+    <div id="additionalCodeEditor" style="display: none">
+      <textarea id="additionalEditor"></textarea>
+    </div>
     <script>
       // Инициализируем редактор
       var editor = CodeMirror.fromTextArea(document.getElementById('codeEditor'), {
         mode: 'javascript',
         lineNumbers: true,
       });
-
+      editor.setValue(`test('проверить класс элемента на example.com', async ({ page }) => {
+        await page.goto('https://example.com');
+        await //ваш код
+    });`);
       // Захардкоженный 4-значный код для верного ответа
       const verificationCode = '1784';
 
+      // Счетчик нажатий на кнопку "Проверить"
+      let checkCounter = 0;
+
       function checkCode() {
+        // Увеличиваем счетчик нажатий
+        checkCounter++;
+
+        // Если кнопка нажата 3 раза, показываем кнопку "Посмотреть ответ"
+        if (checkCounter === 3) {
+          document.getElementById('viewAnswerButton').style.display = 'inline-block';
+        }
+
         // Получаем код из редактора
         let studentCode = editor.getValue().trim();
         // Убираем все пробелы, точки с запятой и приводим к lowercase
@@ -83,6 +102,28 @@
         } else {
           document.getElementById('result').innerText = '❌ Код неверный!';
         }
+      }
+
+      function showAdditionalCodeEditor() {
+        // Показываем дополнительный редактор кода
+        document.getElementById('additionalCodeEditor').style.display = 'block';
+
+        // Инициализируем дополнительный редактор кода
+        var additionalEditor = CodeMirror.fromTextArea(
+          document.getElementById('additionalEditor'),
+          {
+            mode: 'javascript',
+            lineNumbers: true,
+          },
+        );
+
+        // Вставляем пример правильного кода в дополнительный редактор
+        additionalEditor.setValue(
+          `test('проверить класс элемента на example.com', async ({ page }) => {
+    await page.goto('https://example.com');
+    await expect(page.locator('#header')).toHaveClass('active');
+});`,
+        );
       }
     </script>
   </body>

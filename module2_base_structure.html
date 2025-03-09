@@ -35,6 +35,13 @@
         font-weight: bold;
         margin-top: 20px;
       }
+      #viewAnswerButton {
+        display: none;
+        margin-top: 20px;
+      }
+      #additionalCodeEditor {
+        margin-top: 20px;
+      }
     </style>
   </head>
   <body>
@@ -55,7 +62,11 @@
     </p>
     <textarea id="codeEditor"></textarea>
     <button onclick="checkCode()">Проверить</button>
+    <button id="viewAnswerButton" onclick="showAdditionalCodeEditor()">Посмотреть ответ</button>
     <p id="result"></p>
+    <div id="additionalCodeEditor" style="display: none">
+      <textarea id="additionalEditor"></textarea>
+    </div>
     <script>
       // Инициализируем редактор
       var editor = CodeMirror.fromTextArea(document.getElementById('codeEditor'), {
@@ -66,11 +77,24 @@
       // Захардкоженный 4-значный код для верного ответа
       const verificationCode = '1234';
 
+      // Счетчик нажатий на кнопку "Проверить"
+      let checkCounter = 0;
+
       function checkCode() {
+        // Увеличиваем счетчик нажатий
+        checkCounter++;
+
+        // Если кнопка нажата 3 раза, показываем кнопку "Посмотреть ответ"
+        if (checkCounter === 3) {
+          document.getElementById('viewAnswerButton').style.display = 'inline-block';
+        }
+
         // Получаем код из редактора
         let studentCode = editor.getValue().trim();
+
         // Убираем все пробелы, точки с запятой и приводим к lowercase
         studentCode = studentCode.replace(/\s+/g, '').replace(/;/g, '').toLowerCase();
+
         // Эталонный код (без пробелов, точек с запятой и в lowercase)
         const expectedCode =
           `test('открыть сайт google', async ({ page }) => { await page.goto('https://www.google.com');
@@ -78,14 +102,37 @@
             .replace(/\s+/g, '')
             .replace(/;/g, '')
             .toLowerCase();
+
         // Проверяем совпадение
         const isCorrect = studentCode === expectedCode;
+
         // Вывод результата
         if (isCorrect) {
           document.getElementById('result').innerText = `✅ Код верный! Code: ${verificationCode}`;
         } else {
           document.getElementById('result').innerText = '❌ Код неверный!';
         }
+      }
+
+      function showAdditionalCodeEditor() {
+        // Показываем дополнительный редактор кода
+        document.getElementById('additionalCodeEditor').style.display = 'block';
+
+        // Инициализируем дополнительный редактор кода
+        var additionalEditor = CodeMirror.fromTextArea(
+          document.getElementById('additionalEditor'),
+          {
+            mode: 'javascript',
+            lineNumbers: true,
+          },
+        );
+
+        // Вставляем пример правильного кода в дополнительный редактор
+        additionalEditor.setValue(
+          `test('открыть сайт google', async ({ page }) => {
+  await page.goto('https://www.google.com');
+});`,
+        );
       }
     </script>
   </body>

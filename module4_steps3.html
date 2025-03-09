@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Playwright JS</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+    <style>
+      .CodeMirror {
+        height: 200px;
+        border: 1px solid #ccc;
+      }
+      body {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        font-family: Arial, sans-serif;
+      }
+      h3 {
+        color: #333;
+      }
+      p {
+        line-height: 1.6;
+      }
+      button {
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+      }
+      #result {
+        font-weight: bold;
+        margin-top: 20px;
+      }
+      #viewAnswerButton {
+        display: none;
+        margin-top: 20px;
+      }
+      #additionalCodeEditor {
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h3>Шаги.</h3>
+    <p>
+      Напиши тест, который использует test.step для логирования шагов авторизации: ввод логина, ввод
+      пароля и нажатие кнопки "Login".
+    </p>
+    <textarea id="codeEditor"></textarea>
+    <button onclick="checkCode()">Проверить</button>
+    <button id="viewAnswerButton" onclick="showAdditionalCodeEditor()">Посмотреть ответ</button>
+    <p id="result"></p>
+    <div id="additionalCodeEditor" style="display: none">
+      <textarea id="additionalEditor"></textarea>
+    </div>
+    <script>
+      // Инициализируем редактор
+      var editor = CodeMirror.fromTextArea(document.getElementById('codeEditor'), {
+        mode: 'javascript',
+        lineNumbers: true,
+      });
+      editor.setValue(`test('регистрация и настройка профиля', async ({ page }) => {
+    await вашКод('Регистрация пользователя', async () => {
+        await вашКод('Перейти на страницу регистрации', async () => {
+            await page.goto('https://example.com/register');
+        });
+
+        await вашКод('Заполнить форму регистрации', async () => {
+            await page.getByPlaceholder('Username').fill('john_doe');
+            await page.getByPlaceholder('Email').fill('john.doe@example.com');
+            await page.getByPlaceholder('Password').fill('password123');
+        });
+
+        await вашКод('Отправить форму регистрации', async () => {
+            await page.getByRole('button', { name: 'Register' }).click();
+        });
+
+        await вашКод('Проверить успешную регистрацию', async () => {
+            await expect(page.getByText('Registration successful')).toBeVisible();
+        });
+    });
+
+    await вашКод('Настройка профиля', async () => {
+        await вашКод('Перейти в настройки профиля', async () => {
+            await page.goto('https://example.com/profile/settings');
+        });
+
+        await вашКод('Заполнить информацию о профиле', async () => {
+            await page.getByPlaceholder('First Name').fill('John');
+            await page.getByPlaceholder('Last Name').fill('Doe');
+            await page.getByPlaceholder('Bio').fill('Software Engineer');
+        });
+
+        await вашКод('Сохранить изменения', async () => {
+            await page.getByRole('button', { name: 'Save' }).click();
+        });
+
+        await вашКод('Проверить успешное обновление профиля', async () => {
+            await expect(page.getByText('Profile updated successfully')).toBeVisible();
+        });
+    });
+});`);
+
+      // Захардкоженный 4-значный код для верного ответа
+      const verificationCode = '6744';
+
+      // Счетчик нажатий на кнопку "Проверить"
+      let checkCounter = 0;
+
+      function checkCode() {
+        // Увеличиваем счетчик нажатий
+        checkCounter++;
+
+        // Если кнопка нажата 3 раза, показываем кнопку "Посмотреть ответ"
+        if (checkCounter === 3) {
+          document.getElementById('viewAnswerButton').style.display = 'inline-block';
+        }
+
+        // Получаем код из редактора
+        let studentCode = editor.getValue().trim();
+        // Убираем все пробелы, точки с запятой и приводим к lowercase
+        studentCode = studentCode.replace(/\s+/g, '').replace(/;/g, '').toLowerCase();
+        // Эталонный код (без пробелов, точек с запятой и в lowercase)
+        const expectedCode = `test('регистрация и настройка профиля', async ({ page }) => {
+    await test.step('Регистрация пользователя', async () => {
+        await test.step('Перейти на страницу регистрации', async () => {
+            await page.goto('https://example.com/register');
+        });
+
+        await test.step('Заполнить форму регистрации', async () => {
+            await page.getByPlaceholder('Username').fill('john_doe');
+            await page.getByPlaceholder('Email').fill('john.doe@example.com');
+            await page.getByPlaceholder('Password').fill('password123');
+        });
+
+        await test.step('Отправить форму регистрации', async () => {
+            await page.getByRole('button', { name: 'Register' }).click();
+        });
+
+        await test.step('Проверить успешную регистрацию', async () => {
+            await expect(page.getByText('Registration successful')).toBeVisible();
+        });
+    });
+
+    await test.step('Настройка профиля', async () => {
+        await test.step('Перейти в настройки профиля', async () => {
+            await page.goto('https://example.com/profile/settings');
+        });
+
+        await test.step('Заполнить информацию о профиле', async () => {
+            await page.getByPlaceholder('First Name').fill('John');
+            await page.getByPlaceholder('Last Name').fill('Doe');
+            await page.getByPlaceholder('Bio').fill('Software Engineer');
+        });
+
+        await test.step('Сохранить изменения', async () => {
+            await page.getByRole('button', { name: 'Save' }).click();
+        });
+
+        await test.step('Проверить успешное обновление профиля', async () => {
+            await expect(page.getByText('Profile updated successfully')).toBeVisible();
+        });
+    });
+});`
+          .replace(/\s+/g, '')
+          .replace(/;/g, '')
+          .toLowerCase();
+        // Проверяем совпадение
+        const isCorrect = studentCode === expectedCode;
+        // Вывод результата
+        if (isCorrect) {
+          document.getElementById('result').innerText = `✅ Код верный! Code: ${verificationCode}`;
+        } else {
+          document.getElementById('result').innerText = '❌ Код неверный!';
+        }
+      }
+
+      function showAdditionalCodeEditor() {
+        // Показываем дополнительный редактор кода
+        document.getElementById('additionalCodeEditor').style.display = 'block';
+
+        // Инициализируем дополнительный редактор кода
+        var additionalEditor = CodeMirror.fromTextArea(
+          document.getElementById('additionalEditor'),
+          {
+            mode: 'javascript',
+            lineNumbers: true,
+          },
+        );
+
+        // Вставляем пример правильного кода в дополнительный редактор
+        additionalEditor.setValue(
+          `test('регистрация и настройка профиля', async ({ page }) => {
+    await test.step('Регистрация пользователя', async () => {
+        await test.step('Перейти на страницу регистрации', async () => {
+            await page.goto('https://example.com/register');
+        });
+
+        await test.step('Заполнить форму регистрации', async () => {
+            await page.getByPlaceholder('Username').fill('john_doe');
+            await page.getByPlaceholder('Email').fill('john.doe@example.com');
+            await page.getByPlaceholder('Password').fill('password123');
+        });
+
+        await test.step('Отправить форму регистрации', async () => {
+            await page.getByRole('button', { name: 'Register' }).click();
+        });
+
+        await test.step('Проверить успешную регистрацию', async () => {
+            await expect(page.getByText('Registration successful')).toBeVisible();
+        });
+    });
+
+    await test.step('Настройка профиля', async () => {
+        await test.step('Перейти в настройки профиля', async () => {
+            await page.goto('https://example.com/profile/settings');
+        });
+
+        await test.step('Заполнить информацию о профиле', async () => {
+            await page.getByPlaceholder('First Name').fill('John');
+            await page.getByPlaceholder('Last Name').fill('Doe');
+            await page.getByPlaceholder('Bio').fill('Software Engineer');
+        });
+
+        await test.step('Сохранить изменения', async () => {
+            await page.getByRole('button', { name: 'Save' }).click();
+        });
+
+        await test.step('Проверить успешное обновление профиля', async () => {
+            await expect(page.getByText('Profile updated successfully')).toBeVisible();
+        });
+    });
+});`,
+        );
+      }
+    </script>
+  </body>
+</html>

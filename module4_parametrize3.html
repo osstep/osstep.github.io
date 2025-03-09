@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Playwright JS</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+    <style>
+      .CodeMirror {
+        height: 200px;
+        border: 1px solid #ccc;
+      }
+      body {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        font-family: Arial, sans-serif;
+      }
+      h3 {
+        color: #333;
+      }
+      p {
+        line-height: 1.6;
+      }
+      button {
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+      }
+      #result {
+        font-weight: bold;
+        margin-top: 20px;
+      }
+      #viewAnswerButton {
+        display: none;
+        margin-top: 20px;
+      }
+      #additionalCodeEditor {
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h3>Параметризация.</h3>
+    <p>
+      Напиши тест, который проверяет отображение случайно выбранного товара на главной странице.
+    </p>
+    <textarea id="codeEditor"></textarea>
+    <button onclick="checkCode()">Проверить</button>
+    <button id="viewAnswerButton" onclick="showAdditionalCodeEditor()">Посмотреть ответ</button>
+    <p id="result"></p>
+    <div id="additionalCodeEditor" style="display: none">
+      <textarea id="additionalEditor"></textarea>
+    </div>
+    <script>
+      // Инициализируем редактор
+      var editor = CodeMirror.fromTextArea(document.getElementById('codeEditor'), {
+        mode: 'javascript',
+        lineNumbers: true,
+      });
+      editor.setValue(`const products = ['Laptop', 'Phone', 'Tablet'];
+
+const getRandomProduct = () => {
+    return products[Math.floor(Math.random() * products.length)];
+};
+
+const randomProduct = getRandomProduct();
+
+test(\`проверить отображение товара "${вашКод}" на главной странице\`, async ({ page }) => {
+    await page.goto('https://example.com');
+    const featuredProduct = await page.textContent('.featured-product');
+    expect(featuredProduct).toContain(randomProduct);
+});`);
+
+      // Захардкоженный 4-значный код для верного ответа
+      const verificationCode = '3256';
+
+      // Счетчик нажатий на кнопку "Проверить"
+      let checkCounter = 0;
+
+      function checkCode() {
+        // Увеличиваем счетчик нажатий
+        checkCounter++;
+
+        // Если кнопка нажата 3 раза, показываем кнопку "Посмотреть ответ"
+        if (checkCounter === 3) {
+          document.getElementById('viewAnswerButton').style.display = 'inline-block';
+        }
+
+        // Получаем код из редактора
+        let studentCode = editor.getValue().trim();
+        // Убираем все пробелы, точки с запятой и приводим к lowercase
+        studentCode = studentCode.replace(/\s+/g, '').replace(/;/g, '').toLowerCase();
+        // Эталонный код (без пробелов, точек с запятой и в lowercase)
+        const expectedCode = `const products = ['Laptop', 'Phone', 'Tablet'];
+
+const getRandomProduct = () => {
+    return products[Math.floor(Math.random() * products.length)];
+};
+
+const randomProduct = getRandomProduct();
+
+test(\`проверить отображение товара "${randomProduct}" на главной странице\`, async ({ page }) => {
+    await page.goto('https://example.com');
+    const featuredProduct = await page.textContent('.featured-product');
+    expect(featuredProduct).toContain(randomProduct);
+});`
+          .replace(/\s+/g, '')
+          .replace(/;/g, '')
+          .toLowerCase();
+        // Проверяем совпадение
+        const isCorrect = studentCode === expectedCode;
+        // Вывод результата
+        if (isCorrect) {
+          document.getElementById('result').innerText = `✅ Код верный! Code: ${verificationCode}`;
+        } else {
+          document.getElementById('result').innerText = '❌ Код неверный!';
+        }
+      }
+
+      function showAdditionalCodeEditor() {
+        // Показываем дополнительный редактор кода
+        document.getElementById('additionalCodeEditor').style.display = 'block';
+
+        // Инициализируем дополнительный редактор кода
+        var additionalEditor = CodeMirror.fromTextArea(
+          document.getElementById('additionalEditor'),
+          {
+            mode: 'javascript',
+            lineNumbers: true,
+          },
+        );
+
+        // Вставляем пример правильного кода в дополнительный редактор
+        additionalEditor.setValue(`const products = ['Laptop', 'Phone', 'Tablet'];
+
+const getRandomProduct = () => {
+    return products[Math.floor(Math.random() * products.length)];
+};
+
+const randomProduct = getRandomProduct();
+
+test(\`проверить отображение товара "${randomProduct}" на главной странице\`, async ({ page }) => {
+    await page.goto('https://example.com');
+    const featuredProduct = await page.textContent('.featured-product');
+    expect(featuredProduct).toContain(randomProduct);
+});`);
+      }
+    </script>
+  </body>
+</html>

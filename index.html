@@ -20,7 +20,11 @@
     <h3>Напиши код:</h3>
     <textarea id="codeEditor"></textarea>
     <button onclick="checkCode()">Проверить</button>
+    <button id="viewAnswerButton" onclick="showAdditionalCodeEditor()">Посмотреть ответ</button>
     <p id="result"></p>
+    <div id="additionalCodeEditor" style="display: none">
+      <textarea id="additionalEditor"></textarea>
+    </div>
 
     <script>
       // Инициализируем редактор
@@ -29,7 +33,18 @@
         lineNumbers: true,
       });
 
+      // Счетчик нажатий на кнопку "Проверить"
+      let checkCounter = 0;
+
       function checkCode() {
+        // Увеличиваем счетчик нажатий
+        checkCounter++;
+
+        // Если кнопка нажата 3 раза, показываем кнопку "Посмотреть ответ"
+        if (checkCounter === 3) {
+          document.getElementById('viewAnswerButton').style.display = 'inline-block';
+        }
+
         // Получаем код из редактора
         let studentCode = editor.getValue().trim();
 
