@@ -122,9 +122,12 @@
         const isCorrect = studentCode === expectedCode;
         // Вывод результата
         if (isCorrect) {
-          document.getElementById('result').innerText = `✅ Код верный! Code: ${verificationCode}`;
+          document.getElementById(
+            'result',
+          ).innerText = `✅ Отличная работа!! Code: ${verificationCode}`;
         } else {
-          document.getElementById('result').innerText = '❌ Код неверный!';
+          document.getElementById('result').innerText =
+            '❌ Ошибка( Попробуй еще раз! После 3 попыток можно просмотреть решение';
         }
       }
 
