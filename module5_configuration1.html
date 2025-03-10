@@ -113,7 +113,7 @@ export default defineConfig({
 
 // test.spec.js
 test('проверить базовый URL', async ({ page }) => {
-    await вашКод;
+    await page.goto('/');
     await expect(page).toHaveTitle('Example Domain');
 });`
           .replace(/\s+/g, '')

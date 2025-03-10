@@ -92,7 +92,7 @@
           .replace(/"/g, "'")
           .toLowerCase();
         // Эталонный код (без пробелов, точек с запятой и в lowercase)
-        const expectedCode = `test('проверить медленный тест', async ({ page }) => {
+        const expectedCode = `test.slow('проверить медленный тест', async ({ page }) => {
   await page.goto('https://example.com');
   await expect(page).toHaveTitle('Example Domain');
 });`
