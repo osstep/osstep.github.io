@@ -11,7 +11,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
     <style>
       .CodeMirror {
-        height: 200px;
+        height: 300px;
         border: 1px solid #ccc;
       }
       body {
@@ -63,20 +63,21 @@
         mode: 'javascript',
         lineNumbers: true,
       });
-      editor.setValue(`const searchTerms = [
-                { term: 'laptop', expectedResult: 'Laptop' },
-                { term: 'phone', expectedResult: 'Phone' },
-            ];
+      editor.setValue(`
+const searchTerms = [
+          { term: 'laptop', expectedResult: 'Laptop' },
+          { term: 'phone', expectedResult: 'Phone' },
+      ];
 
-            вашКод (const { term, expectedResult } of searchTerms) {
-                test(\`проверить результаты поиска для "${term}"\`, async ({ page }) => {
-                    await page.вашКод('https://example.com');
-                    await page.getByPlaceholder('Search').fill(term);
-                    await page.getByRole('button', { name: 'Search' }).click();
-                    const searchResult = await page.textContent('.search-result');
-                    expect(searchResult).toContain(expectedResult);
-                });
-            }`);
+вашКод (const { term, expectedResult } of searchTerms) {
+    test(\`проверить результаты поиска для "\${term}"\`, async ({ page }) => {
+        await page.вашКод('https://example.com');
+        await page.getByPlaceholder('Search').fill(term);
+        await page.getByRole('button', { name: 'Search' }).click();
+        const searchResult = await page.textContent('.search-result');
+        expect(searchResult).toContain(expectedResult);
+    });
+}`);
 
       // Захардкоженный 4-значный код для верного ответа
       const verificationCode = '6745';
@@ -96,7 +97,11 @@
         // Получаем код из редактора
         let studentCode = editor.getValue().trim();
         // Убираем все пробелы, точки с запятой и приводим к lowercase
-        studentCode = studentCode.replace(/\s+/g, '').replace(/;/g, '').toLowerCase();
+        studentCode = studentCode
+          .replace(/\s+/g, '')
+          .replace(/;/g, '')
+          .replace(/"/g, "'")
+          .toLowerCase();
         // Эталонный код (без пробелов, точек с запятой и в lowercase)
         const expectedCode = `const searchTerms = [
                 { term: 'laptop', expectedResult: 'Laptop' },
@@ -104,7 +109,7 @@
             ];
 
             for (const { term, expectedResult } of searchTerms) {
-                test(\`проверить результаты поиска для "${term}"\`, async ({ page }) => {
+                test(\`проверить результаты поиска для "\${term}"\`, async ({ page }) => {
                     await page.goto('https://example.com');
                     await page.getByPlaceholder('Search').fill(term);
                     await page.getByRole('button', { name: 'Search' }).click();
@@ -114,6 +119,7 @@
             }`
           .replace(/\s+/g, '')
           .replace(/;/g, '')
+          .replace(/"/g, "'")
           .toLowerCase();
         // Проверяем совпадение
         const isCorrect = studentCode === expectedCode;

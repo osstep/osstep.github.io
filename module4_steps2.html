@@ -11,7 +11,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
     <style>
       .CodeMirror {
-        height: 200px;
+        height: 300px;
         border: 1px solid #ccc;
       }
       body {
@@ -64,25 +64,25 @@
         lineNumbers: true,
       });
       editor.setValue(`test('авторизация на сайте', async ({ page }) => {
-    await вашКод('Перейти на страницу авторизации', async () => {
-        await page.goto('https://example.com/login');
-    });
+  await вашКод('Перейти на страницу авторизации', async () => {
+      await page.goto('https://example.com/login');
+  });
 
-    await вашКод('Ввести логин', async () => {
-        await page.getByPlaceholder('Username').fill('user');
-    });
+  await вашКод('Ввести логин', async () => {
+      await page.getByPlaceholder('Username').fill('user');
+  });
 
-    await вашКод('Ввести пароль', async () => {
-        await page.getByPlaceholder('Password').fill('password');
-    });
+  await вашКод('Ввести пароль', async () => {
+      await page.getByPlaceholder('Password').fill('password');
+  });
 
-    await вашКод('Нажать кнопку Login', async () => {
-        await page.getByRole('button', { name: 'Login' }).click();
-    });
+  await вашКод('Нажать кнопку Login', async () => {
+      await page.getByRole('button', { name: 'Login' }).click();
+  });
 
-    await вашКод('Проверить успешную авторизацию', async () => {
-        await expect(page.getByText('Welcome, user')).toBeVisible();
-    });
+  await вашКод('Проверить успешную авторизацию', async () => {
+      await expect(page.getByText('Welcome, user')).toBeVisible();
+  });
 });`);
 
       // Захардкоженный 4-значный код для верного ответа
@@ -103,31 +103,36 @@
         // Получаем код из редактора
         let studentCode = editor.getValue().trim();
         // Убираем все пробелы, точки с запятой и приводим к lowercase
-        studentCode = studentCode.replace(/\s+/g, '').replace(/;/g, '').toLowerCase();
+        studentCode = studentCode
+          .replace(/\s+/g, '')
+          .replace(/;/g, '')
+          .replace(/"/g, "'")
+          .toLowerCase();
         // Эталонный код (без пробелов, точек с запятой и в lowercase)
         const expectedCode = `test('авторизация на сайте', async ({ page }) => {
-    await test.step('Перейти на страницу авторизации', async () => {
-        await page.goto('https://example.com/login');
-    });
+  await test.step('Перейти на страницу авторизации', async () => {
+      await page.goto('https://example.com/login');
+  });
 
-    await test.step('Ввести логин', async () => {
-        await page.getByPlaceholder('Username').fill('user');
-    });
+  await test.step('Ввести логин', async () => {
+      await page.getByPlaceholder('Username').fill('user');
+  });
 
-    await test.step('Ввести пароль', async () => {
-        await page.getByPlaceholder('Password').fill('password');
-    });
+  await test.step('Ввести пароль', async () => {
+      await page.getByPlaceholder('Password').fill('password');
+  });
 
-    await test.step('Нажать кнопку Login', async () => {
-        await page.getByRole('button', { name: 'Login' }).click();
-    });
+  await test.step('Нажать кнопку Login', async () => {
+      await page.getByRole('button', { name: 'Login' }).click();
+  });
 
-    await test.step('Проверить успешную авторизацию', async () => {
-        await expect(page.getByText('Welcome, user')).toBeVisible();
-    });
+  await test.step('Проверить успешную авторизацию', async () => {
+      await expect(page.getByText('Welcome, user')).toBeVisible();
+  });
 });`
           .replace(/\s+/g, '')
           .replace(/;/g, '')
+          .replace(/"/g, "'")
           .toLowerCase();
         // Проверяем совпадение
         const isCorrect = studentCode === expectedCode;

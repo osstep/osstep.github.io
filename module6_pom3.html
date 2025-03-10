@@ -11,7 +11,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
     <style>
       .CodeMirror {
-        height: 200px;
+        height: 300px;
         border: 1px solid #ccc;
       }
       body {
@@ -72,7 +72,7 @@ export class ProductPage {
     }
 
     async navigate(productId) {
-        await вашКод(\`https://example.com/products/${вашКод}\`);
+        await вашКод(\`https://example.com/products/\${вашКод}\`);
     }
 
     async addToCart() {
@@ -113,27 +113,31 @@ test('добавить товар в корзину', async ({ page }) => {
         // Получаем код из редактора
         let studentCode = editor.getValue().trim();
         // Убираем все пробелы, точки с запятой и приводим к lowercase
-        studentCode = studentCode.replace(/\s+/g, '').replace(/;/g, '').toLowerCase();
+        studentCode = studentCode
+          .replace(/\s+/g, '')
+          .replace(/;/g, '')
+          .replace(/"/g, "'")
+          .toLowerCase();
         // Эталонный код (без пробелов, точек с запятой и в lowercase)
         const expectedCode = `// pages/ProductPage.js
 export class ProductPage {
-    constructor(page) {
-        this.page = page;
-        this.addToCartButton = page.getByRole('button', { name: 'Add to Cart' });
-        this.successMessage = page.getByText('Product added to cart');
-    }
+  constructor(page) {
+      this.page = page;
+      this.addToCartButton = page.getByRole('button', { name: 'Add to Cart' });
+      this.successMessage = page.getByText('Product added to cart');
+  }
 
-    async navigate(productId) {
-        await this.page.goto(\`https://example.com/products/${productId}\`);
-    }
+  async navigate(productId) {
+      await this.page.goto(\`https://example.com/products/\${productId}\`);
+  }
 
-    async addToCart() {
-        await this.addToCartButton.click();
-    }
+  async addToCart() {
+      await this.addToCartButton.click();
+  }
 
-    async isSuccessMessageVisible() {
-        return await this.successMessage.isVisible();
-    }
+  async isSuccessMessageVisible() {
+      return await this.successMessage.isVisible();
+  }
 }
 
 // test.spec.js
@@ -141,13 +145,14 @@ import { test, expect } from '@playwright/test';
 import { ProductPage } from './pages/ProductPage';
 
 test('добавить товар в корзину', async ({ page }) => {
-    const productPage = new ProductPage(page);
-    await productPage.navigate('123');
-    await productPage.addToCart();
-    expect(await productPage.isSuccessMessageVisible()).toBeTruthy();
+  const productPage = new ProductPage(page);
+  await productPage.navigate('123');
+  await productPage.addToCart();
+  expect(await productPage.isSuccessMessageVisible()).toBeTruthy();
 });`
           .replace(/\s+/g, '')
           .replace(/;/g, '')
+          .replace(/"/g, "'")
           .toLowerCase();
         // Проверяем совпадение
         const isCorrect = studentCode === expectedCode;
@@ -182,7 +187,7 @@ export class ProductPage {
     }
 
     async navigate(productId) {
-        await this.page.goto(\`https://example.com/products/${productId}\`);
+        await this.page.goto(\`https://example.com/products/\${productId}\`);
     }
 
     async addToCart() {

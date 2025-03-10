@@ -11,7 +11,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
     <style>
       .CodeMirror {
-        height: 200px;
+        height: 300px;
         border: 1px solid #ccc;
       }
       body {
@@ -66,7 +66,7 @@
       editor.setValue(`const testData = require('./testData.json'); // Файл testData.json: [{"url": "https://example.com", "title": "Example Domain"}, ...]
 
 вашКод.вашКод(({ url, title }) => {
-    test(\`проверить заголовок страницы для ${вашКод}\`, async ({ page }) => {
+    test(\`проверить заголовок страницы для \${вашКод}\`, async ({ page }) => {
         await page.goto(url);
         await expect(page).toHaveTitle(вашКод);
     });
@@ -90,19 +90,24 @@
         // Получаем код из редактора
         let studentCode = editor.getValue().trim();
         // Убираем все пробелы, точки с запятой и приводим к lowercase
-        studentCode = studentCode.replace(/\s+/g, '').replace(/;/g, '').toLowerCase();
+        studentCode = studentCode
+          .replace(/\s+/g, '')
+          .replace(/;/g, '')
+          .replace(/"/g, "'")
+          .toLowerCase();
         // Эталонный код (без пробелов, точек с запятой и в lowercase)
         const expectedCode =
           `const testData = require('./testData.json'); // Файл testData.json: [{"url": "https://example.com", "title": "Example Domain"}, ...]
 
 testData.forEach(({ url, title }) => {
-    test(\`проверить заголовок страницы для ${url}\`, async ({ page }) => {
+    test(\`проверить заголовок страницы для \${url}\`, async ({ page }) => {
         await page.goto(url);
         await expect(page).toHaveTitle(title);
     });
 });`
             .replace(/\s+/g, '')
             .replace(/;/g, '')
+            .replace(/"/g, "'")
             .toLowerCase();
         // Проверяем совпадение
         const isCorrect = studentCode === expectedCode;
@@ -131,7 +136,7 @@ testData.forEach(({ url, title }) => {
         additionalEditor.setValue(`const testData = require('./testData.json'); // Файл testData.json: [{"url": "https://example.com", "title": "Example Domain"}, ...]
 
 testData.forEach(({ url, title }) => {
-    test(\`проверить заголовок страницы для ${url}\`, async ({ page }) => {
+    test(\`проверить заголовок страницы для \${url}\`, async ({ page }) => {
         await page.goto(url);
         await expect(page).toHaveTitle(title);
     });

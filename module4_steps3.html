@@ -11,7 +11,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
     <style>
       .CodeMirror {
-        height: 200px;
+        height: 300px;
         border: 1px solid #ccc;
       }
       body {
@@ -64,45 +64,45 @@
         lineNumbers: true,
       });
       editor.setValue(`test('регистрация и настройка профиля', async ({ page }) => {
-    await вашКод('Регистрация пользователя', async () => {
-        await вашКод('Перейти на страницу регистрации', async () => {
-            await page.goto('https://example.com/register');
-        });
+  await вашКод('Регистрация пользователя', async () => {
+      await вашКод('Перейти на страницу регистрации', async () => {
+          await page.goto('https://example.com/register');
+      });
 
-        await вашКод('Заполнить форму регистрации', async () => {
-            await page.getByPlaceholder('Username').fill('john_doe');
-            await page.getByPlaceholder('Email').fill('john.doe@example.com');
-            await page.getByPlaceholder('Password').fill('password123');
-        });
+      await вашКод('Заполнить форму регистрации', async () => {
+          await page.getByPlaceholder('Username').fill('john_doe');
+          await page.getByPlaceholder('Email').fill('john.doe@example.com');
+          await page.getByPlaceholder('Password').fill('password123');
+      });
 
-        await вашКод('Отправить форму регистрации', async () => {
-            await page.getByRole('button', { name: 'Register' }).click();
-        });
+      await вашКод('Отправить форму регистрации', async () => {
+          await page.getByRole('button', { name: 'Register' }).click();
+      });
 
-        await вашКод('Проверить успешную регистрацию', async () => {
-            await expect(page.getByText('Registration successful')).toBeVisible();
-        });
-    });
+      await вашКод('Проверить успешную регистрацию', async () => {
+          await expect(page.getByText('Registration successful')).toBeVisible();
+      });
+  });
 
-    await вашКод('Настройка профиля', async () => {
-        await вашКод('Перейти в настройки профиля', async () => {
-            await page.goto('https://example.com/profile/settings');
-        });
+  await вашКод('Настройка профиля', async () => {
+      await вашКод('Перейти в настройки профиля', async () => {
+          await page.goto('https://example.com/profile/settings');
+      });
 
-        await вашКод('Заполнить информацию о профиле', async () => {
-            await page.getByPlaceholder('First Name').fill('John');
-            await page.getByPlaceholder('Last Name').fill('Doe');
-            await page.getByPlaceholder('Bio').fill('Software Engineer');
-        });
+      await вашКод('Заполнить информацию о профиле', async () => {
+          await page.getByPlaceholder('First Name').fill('John');
+          await page.getByPlaceholder('Last Name').fill('Doe');
+          await page.getByPlaceholder('Bio').fill('Software Engineer');
+      });
 
-        await вашКод('Сохранить изменения', async () => {
-            await page.getByRole('button', { name: 'Save' }).click();
-        });
+      await вашКод('Сохранить изменения', async () => {
+          await page.getByRole('button', { name: 'Save' }).click();
+      });
 
-        await вашКод('Проверить успешное обновление профиля', async () => {
-            await expect(page.getByText('Profile updated successfully')).toBeVisible();
-        });
-    });
+      await вашКод('Проверить успешное обновление профиля', async () => {
+          await expect(page.getByText('Profile updated successfully')).toBeVisible();
+      });
+  });
 });`);
 
       // Захардкоженный 4-значный код для верного ответа
@@ -123,7 +123,11 @@
         // Получаем код из редактора
         let studentCode = editor.getValue().trim();
         // Убираем все пробелы, точки с запятой и приводим к lowercase
-        studentCode = studentCode.replace(/\s+/g, '').replace(/;/g, '').toLowerCase();
+        studentCode = studentCode
+          .replace(/\s+/g, '')
+          .replace(/;/g, '')
+          .replace(/"/g, "'")
+          .toLowerCase();
         // Эталонный код (без пробелов, точек с запятой и в lowercase)
         const expectedCode = `test('регистрация и настройка профиля', async ({ page }) => {
     await test.step('Регистрация пользователя', async () => {
@@ -168,6 +172,7 @@
 });`
           .replace(/\s+/g, '')
           .replace(/;/g, '')
+          .replace(/"/g, "'")
           .toLowerCase();
         // Проверяем совпадение
         const isCorrect = studentCode === expectedCode;

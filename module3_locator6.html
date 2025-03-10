@@ -11,7 +11,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
     <style>
       .CodeMirror {
-        height: 200px;
+        height: 300px;
         border: 1px solid #ccc;
       }
       body {
@@ -64,9 +64,9 @@
         lineNumbers: true,
       });
       editor.setValue(`test('фильтровать элементы по наличию вложенного элемента на google', async ({ page }) => {
-        await page.goto('https://www.google.com');
-        const element = page.getByRole('listitem').//ваш код
-    });`);
+  await page.goto('https://www.google.com');
+  const element = page.getByRole('listitem').//ваш код
+});`);
       // Захардкоженный 4-значный код для верного ответа
       const verificationCode = '2233';
 
@@ -85,7 +85,11 @@
         // Получаем код из редактора
         let studentCode = editor.getValue().trim();
         // Убираем все пробелы, точки с запятой и приводим к lowercase
-        studentCode = studentCode.replace(/\s+/g, '').replace(/;/g, '').toLowerCase();
+        studentCode = studentCode
+          .replace(/\s+/g, '')
+          .replace(/;/g, '')
+          .replace(/"/g, "'")
+          .toLowerCase();
         // Эталонный код (без пробелов, точек с запятой и в lowercase)
         const expectedCode =
           `test('фильтровать элементы по наличию вложенного элемента на google', async ({ page }) => {
@@ -94,6 +98,7 @@
 });`
             .replace(/\s+/g, '')
             .replace(/;/g, '')
+            .replace(/"/g, "'")
             .toLowerCase();
         // Проверяем совпадение
         const isCorrect = studentCode === expectedCode;

@@ -11,7 +11,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
     <style>
       .CodeMirror {
-        height: 200px;
+        height: 300px;
         border: 1px solid #ccc;
       }
       body {
@@ -69,7 +69,7 @@
     });`);
 
       // Захардкоженный 4-значный код для верного ответа
-      const verificationCode = '1784';
+      const verificationCode = '3533';
 
       // Счетчик нажатий на кнопку "Проверить"
       let checkCounter = 0;
@@ -86,15 +86,20 @@
         // Получаем код из редактора
         let studentCode = editor.getValue().trim();
         // Убираем все пробелы, точки с запятой и приводим к lowercase
-        studentCode = studentCode.replace(/\s+/g, '').replace(/;/g, '').toLowerCase();
+        studentCode = studentCode
+          .replace(/\s+/g, '')
+          .replace(/;/g, '')
+          .replace(/"/g, "'")
+          .toLowerCase();
         // Эталонный код (без пробелов, точек с запятой и в lowercase)
         const expectedCode =
           `test('проверить количество элементов на example.com', async ({ page }) => {
-    await page.goto('https://example.com');
-    await expect(page.locator('.item')).toHaveCount(3);
+  await page.goto('https://example.com');
+  await expect(page.locator('.item')).toHaveCount(3);
 });`
             .replace(/\s+/g, '')
             .replace(/;/g, '')
+            .replace(/"/g, "'")
             .toLowerCase();
         // Проверяем совпадение
         const isCorrect = studentCode === expectedCode;

@@ -11,7 +11,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
     <style>
       .CodeMirror {
-        height: 200px;
+        height: 300px;
         border: 1px solid #ccc;
       }
       body {
@@ -66,18 +66,18 @@
       editor.setValue(`import { test, expect } from '@playwright/test';
 
 test('мокирование запроса с динамическими данными', async ({ page }) => {
-    вашКод('**/api/data', (route) => {
-        const currentDate = new Date().toISOString();
-        route.fulfill({
-            вашКод: 200,
-            вашКод: 'application/json',
-            вашКод: JSON.stringify({ date: currentDate }),
-        });
-    });
+  вашКод('**/api/data', (route) => {
+      const currentDate = new Date().toISOString();
+      route.fulfill({
+          вашКод: 200,
+          вашКод: 'application/json',
+          вашКод: JSON.stringify({ date: currentDate }),
+      });
+  });
 
-    await page.goto('https://example.com');
-    const response = await page.evaluate(() => fetch('/api/data').then((res) => res.json()));
-    expect(response.date).toBeDefined();
+  await page.goto('https://example.com');
+  const response = await page.evaluate(() => fetch('/api/data').then((res) => res.json()));
+  expect(response.date).toBeDefined();
 });`);
 
       // Захардкоженный 4-значный код для верного ответа
@@ -98,7 +98,11 @@ test('мокирование запроса с динамическими дан
         // Получаем код из редактора
         let studentCode = editor.getValue().trim();
         // Убираем все пробелы, точки с запятой и приводим к lowercase
-        studentCode = studentCode.replace(/\s+/g, '').replace(/;/g, '').toLowerCase();
+        studentCode = studentCode
+          .replace(/\s+/g, '')
+          .replace(/;/g, '')
+          .replace(/"/g, "'")
+          .toLowerCase();
         // Эталонный код (без пробелов, точек с запятой и в lowercase)
         const expectedCode = `import { test, expect } from '@playwright/test';
 
@@ -118,6 +122,7 @@ test('мокирование запроса с динамическими дан
 });`
           .replace(/\s+/g, '')
           .replace(/;/g, '')
+          .replace(/"/g, "'")
           .toLowerCase();
         // Проверяем совпадение
         const isCorrect = studentCode === expectedCode;

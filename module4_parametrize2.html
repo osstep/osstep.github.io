@@ -11,7 +11,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
     <style>
       .CodeMirror {
-        height: 200px;
+        height: 300px;
         border: 1px solid #ccc;
       }
       body {
@@ -68,16 +68,16 @@
           { name: 'Phone', id: 'product2' },
       ];
 
-      products.вашКод(({ name, id }) => {
-          test.вашКод(\`Проверка добавления товара "${name}" в корзину\`, () => {
-              test('добавить товар в корзину', async ({ page }) => {
-                  await page.goto(\`https://example.com/products/${id}\`);
-                  await page.getByRole('button', { name: 'Add to Cart' }).click();
-                  const cartItem = await page.textContent('.cart-item');
-                  expect(cartItem).toContain(name);
-              });
-          });
-      });`);
+products.вашКод(({ name, id }) => {
+    test.вашКод(\`Проверка добавления товара "\${name}" в корзину\`, () => {
+        test('добавить товар в корзину', async ({ page }) => {
+            await page.goto(\`https://example.com/products/\${id}\`);
+            await page.getByRole('button', { name: 'Add to Cart' }).click();
+            const cartItem = await page.textContent('.cart-item');
+            expect(cartItem).toContain(name);
+        });
+    });
+});`);
 
       // Захардкоженный 4-значный код для верного ответа
       const verificationCode = '7876';
@@ -97,7 +97,11 @@
         // Получаем код из редактора
         let studentCode = editor.getValue().trim();
         // Убираем все пробелы, точки с запятой и приводим к lowercase
-        studentCode = studentCode.replace(/\s+/g, '').replace(/;/g, '').toLowerCase();
+        studentCode = studentCode
+          .replace(/\s+/g, '')
+          .replace(/;/g, '')
+          .replace(/"/g, "'")
+          .toLowerCase();
         // Эталонный код (без пробелов, точек с запятой и в lowercase)
         const expectedCode = `const products = [
           { name: 'Laptop', id: 'product1' },
@@ -105,9 +109,9 @@
       ];
 
       products.forEach(({ name, id }) => {
-          test.describe(\`Проверка добавления товара "${name}" в корзину\`, () => {
+          test.describe(\`Проверка добавления товара "\${name}" в корзину\`, () => {
               test('добавить товар в корзину', async ({ page }) => {
-                  await page.goto(\`https://example.com/products/${id}\`);
+                  await page.goto(\`https://example.com/products/\${id}\`);
                   await page.getByRole('button', { name: 'Add to Cart' }).click();
                   const cartItem = await page.textContent('.cart-item');
                   expect(cartItem).toContain(name);
@@ -116,6 +120,7 @@
       });`
           .replace(/\s+/g, '')
           .replace(/;/g, '')
+          .replace(/"/g, "'")
           .toLowerCase();
         // Проверяем совпадение
         const isCorrect = studentCode === expectedCode;
@@ -147,9 +152,9 @@
       ];
 
       products.forEach(({ name, id }) => {
-          test.describe(\`Проверка добавления товара "${name}" в корзину\`, () => {
+          test.describe(\`Проверка добавления товара "\${name}" в корзину\`, () => {
               test('добавить товар в корзину', async ({ page }) => {
-                  await page.goto(\`https://example.com/products/${id}\`);
+                  await page.goto(\`https://example.com/products/\${id}\`);
                   await page.getByRole('button', { name: 'Add to Cart' }).click();
                   const cartItem = await page.textContent('.cart-item');
                   expect(cartItem).toContain(name);

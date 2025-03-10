@@ -11,7 +11,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
     <style>
       .CodeMirror {
-        height: 200px;
+        height: 300px;
         border: 1px solid #ccc;
       }
       body {
@@ -65,22 +65,22 @@
       });
       editor.setValue(`// pages/LoginPage.js
 export class LoginPage {
-    constructor(page) {
-        this.page = page;
-        this.usernameField = page.getByPlaceholder('Username');
-        this.passwordField = page.getByPlaceholder('Password');
-        this.loginButton = page.getByRole('button', { name: 'Login' });
-    }
+  constructor(page) {
+      this.page = page;
+      this.usernameField = page.getByPlaceholder('Username');
+      this.passwordField = page.getByPlaceholder('Password');
+      this.loginButton = page.getByRole('button', { name: 'Login' });
+  }
 
-    async navigate() {
-        //ваш код;
-    }
+  async navigate() {
+      //ваш код;
+  }
 
-    async login(username, password) {
-        await this.usernameField.fill(username);
-        await //ваш код;
-        await this.loginButton.click();
-    }
+  async login(username, password) {
+      await this.usernameField.fill(username);
+      await //ваш код;
+      await this.loginButton.click();
+  }
 }
 
 // test.spec.js
@@ -88,10 +88,10 @@ import { test, expect } from '@playwright/test';
 import { LoginPage } from './pages/LoginPage';
 
 test('авторизация на сайте', async ({ page }) => {
-    const loginPage = new LoginPage(page);
-    await loginPage.navigate();
-    await loginPage.login('user', 'password');
-    await expect(page.getByText('Welcome, user')).toBeVisible();
+  const loginPage = new LoginPage(page);
+  await loginPage.navigate();
+  await loginPage.login('user', 'password');
+  await expect(page.getByText('Welcome, user')).toBeVisible();
 });`);
 
       // Захардкоженный 4-значный код для верного ответа
@@ -112,7 +112,11 @@ test('авторизация на сайте', async ({ page }) => {
         // Получаем код из редактора
         let studentCode = editor.getValue().trim();
         // Убираем все пробелы, точки с запятой и приводим к lowercase
-        studentCode = studentCode.replace(/\s+/g, '').replace(/;/g, '').toLowerCase();
+        studentCode = studentCode
+          .replace(/\s+/g, '')
+          .replace(/;/g, '')
+          .replace(/"/g, "'")
+          .toLowerCase();
         // Эталонный код (без пробелов, точек с запятой и в lowercase)
         const expectedCode = `// pages/LoginPage.js
 export class LoginPage {
@@ -146,6 +150,7 @@ test('авторизация на сайте', async ({ page }) => {
 });`
           .replace(/\s+/g, '')
           .replace(/;/g, '')
+          .replace(/"/g, "'")
           .toLowerCase();
         // Проверяем совпадение
         const isCorrect = studentCode === expectedCode;

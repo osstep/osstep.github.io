@@ -11,7 +11,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
     <style>
       .CodeMirror {
-        height: 200px;
+        height: 300px;
         border: 1px solid #ccc;
       }
       body {
@@ -113,27 +113,31 @@ test('проверить товар в корзине', async ({ page }) => {
         // Получаем код из редактора
         let studentCode = editor.getValue().trim();
         // Убираем все пробелы, точки с запятой и приводим к lowercase
-        studentCode = studentCode.replace(/\s+/g, '').replace(/;/g, '').toLowerCase();
+        studentCode = studentCode
+          .replace(/\s+/g, '')
+          .replace(/;/g, '')
+          .replace(/"/g, "'")
+          .toLowerCase();
         // Эталонный код (без пробелов, точек с запятой и в lowercase)
         const expectedCode = `// pages/CartPage.js
 export class CartPage {
-    constructor(page) {
-        this.page = page;
-        this.cartItem = page.locator('.cart-item');
-        this.removeButton = page.getByRole('button', { name: 'Remove' });
-    }
+  constructor(page) {
+      this.page = page;
+      this.cartItem = page.locator('.cart-item');
+      this.removeButton = page.getByRole('button', { name: 'Remove' });
+  }
 
-    async navigate() {
-        await this.page.goto('https://example.com/cart');
-    }
+  async navigate() {
+      await this.page.goto('https://example.com/cart');
+  }
 
-    async getCartItemText() {
-        return await this.cartItem.textContent();
-    }
+  async getCartItemText() {
+      return await this.cartItem.textContent();
+  }
 
-    async removeItem() {
-        await this.removeButton.click();
-    }
+  async removeItem() {
+      await this.removeButton.click();
+  }
 }
 
 // test.spec.js
@@ -141,13 +145,14 @@ import { test, expect } from '@playwright/test';
 import { CartPage } from './pages/CartPage';
 
 test('проверить товар в корзине', async ({ page }) => {
-    const cartPage = new CartPage(page);
-    await cartPage.navigate();
-    const itemText = await cartPage.getCartItemText();
-    expect(itemText).toContain('Product 1');
+  const cartPage = new CartPage(page);
+  await cartPage.navigate();
+  const itemText = await cartPage.getCartItemText();
+  expect(itemText).toContain('Product 1');
 });`
           .replace(/\s+/g, '')
           .replace(/;/g, '')
+          .replace(/"/g, "'")
           .toLowerCase();
         // Проверяем совпадение
         const isCorrect = studentCode === expectedCode;
