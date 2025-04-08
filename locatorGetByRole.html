@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Playwright getByRole() Practice</title>
+    <style>
+      :root {
+        --primary: #4361ee;
+        --secondary: #3a0ca3;
+        --accent: #f72585;
+        --light: #f8f9fa;
+        --dark: #212529;
+        --success: #4cc9f0;
+        --warning: #f8961e;
+        --danger: #ef233c;
+      }
+
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        color: var(--dark);
+        background-color: var(--light);
+        margin: 0;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      header {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        padding: 2rem;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 2.5rem;
+      }
+
+      .practice-section {
+        background: white;
+        border-radius: 8px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e9ecef;
+      }
+
+      h2 {
+        color: var(--primary);
+        margin-top: 0;
+        border-bottom: 2px solid #dee2e6;
+        padding-bottom: 0.5rem;
+      }
+
+      .button-group {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin: 1.5rem 0;
+      }
+
+      button,
+      [role='button'] {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      button:not([disabled]):hover,
+      [role='button']:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .primary-btn {
+        background-color: var(--primary);
+        color: white;
+      }
+
+      .secondary-btn {
+        background-color: var(--secondary);
+        color: white;
+      }
+
+      .success-btn {
+        background-color: var(--success);
+        color: var(--dark);
+      }
+
+      .warning-btn {
+        background-color: var(--warning);
+        color: white;
+      }
+
+      .danger-btn {
+        background-color: var(--danger);
+        color: white;
+      }
+
+      button[disabled] {
+        background-color: #adb5bd;
+        cursor: not-allowed;
+        opacity: 0.7;
+      }
+
+      .alert {
+        padding: 1rem;
+        border-radius: 6px;
+        margin: 1rem 0;
+      }
+
+      .alert-success {
+        background-color: #d1fae5;
+        color: #065f46;
+        border-left: 4px solid #10b981;
+      }
+
+      .alert-warning {
+        background-color: #fef3c7;
+        color: #92400e;
+        border-left: 4px solid #f59e0b;
+      }
+
+      .alert-danger {
+        background-color: #fee2e2;
+        color: #991b1b;
+        border-left: 4px solid #ef4444;
+      }
+
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+      }
+
+      input,
+      select,
+      textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ced4da;
+        border-radius: 6px;
+        font-size: 1rem;
+      }
+
+      .checkbox-group {
+        margin: 1rem 0;
+      }
+
+      .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .tab-container {
+        margin: 2rem 0;
+      }
+
+      .tab-buttons {
+        display: flex;
+        border-bottom: 1px solid #dee2e6;
+      }
+
+      .tab-button {
+        padding: 0.75rem 1.5rem;
+        background: none;
+        border: none;
+        border-bottom: 3px solid transparent;
+        cursor: pointer;
+        font-weight: 600;
+        color: var(--dark);
+      }
+
+      .tab-button[aria-selected='true'] {
+        border-bottom-color: var(--primary);
+        color: var(--primary);
+      }
+
+      .tab-panel {
+        padding: 1.5rem;
+        border: 1px solid #dee2e6;
+        border-top: none;
+        border-radius: 0 0 8px 8px;
+      }
+
+      footer {
+        text-align: center;
+        margin-top: 2rem;
+        padding: 1.5rem;
+        background-color: var(--dark);
+        color: white;
+        border-radius: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header role="banner">
+        <h1>Практика локатора getByRole()</h1>
+        <p>Освойте работу с локатором <code>getByRole()</code> на этих примерах</p>
+      </header>
+
+      <main>
+        <!-- Секция 1: Кнопки -->
+        <section class="practice-section" aria-labelledby="buttons-heading">
+          <h2 id="buttons-heading">Элементы кнопок</h2>
+          <p>Практика поиска кнопок с разными ролями и состояниями</p>
+
+          <div class="button-group">
+            <button class="primary-btn">Основное действие</button>
+            <button class="secondary-btn">Дополнительное действие</button>
+            <button class="success-btn">Успех</button>
+            <button class="warning-btn">Предупреждение</button>
+            <button class="danger-btn">Опасность</button>
+            <button disabled>Неактивная кнопка</button>
+            <div class="primary-btn" role="button" tabindex="0">Div как кнопка</div>
+          </div>
+        </section>
+
+        <!-- Секция 2: Формы -->
+        <section class="practice-section" aria-labelledby="forms-heading">
+          <h2 id="forms-heading">Элементы форм</h2>
+          <p>Практика поиска элементов форм по их ролям</p>
+
+          <form>
+            <div class="form-group">
+              <label for="username">Имя пользователя</label>
+              <input type="text" id="username" placeholder="Введите имя" />
+            </div>
+
+            <div class="form-group">
+              <label for="password">Пароль</label>
+              <input type="password" id="password" placeholder="Введите пароль" />
+            </div>
+
+            <div class="form-group">
+              <label for="country">Страна</label>
+              <select id="country">
+                <option value="">Выберите страну</option>
+                <option value="ru">Россия</option>
+                <option value="us">США</option>
+                <option value="de">Германия</option>
+              </select>
+            </div>
+
+            <div class="checkbox-group" role="group" aria-labelledby="preferences-heading">
+              <h3 id="preferences-heading">Настройки</h3>
+              <div class="checkbox-label">
+                <input type="checkbox" id="newsletter" name="newsletter" />
+                <label for="newsletter">Подписаться на рассылку</label>
+              </div>
+              <div class="checkbox-label">
+                <input type="checkbox" id="notifications" name="notifications" checked />
+                <label for="notifications">Включить уведомления</label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="comments">Комментарии</label>
+              <textarea id="comments" rows="4" placeholder="Ваш отзыв..."></textarea>
+            </div>
+
+            <button type="submit" class="primary-btn">Отправить</button>
+          </form>
+        </section>
+
+        <!-- Секция 3: Уведомления -->
+        <section class="practice-section" aria-labelledby="alerts-heading">
+          <h2 id="alerts-heading">Уведомления и статусы</h2>
+          <p>Практика поиска уведомлений и статусных сообщений</p>
+
+          <div class="alert alert-success" role="alert">
+            <strong>Успех!</strong> Действие выполнено успешно.
+          </div>
+
+          <div class="alert alert-warning" role="alert">
+            <strong>Внимание!</strong> Это действие нельзя отменить.
+          </div>
+
+          <div class="alert alert-danger" role="alert">
+            <strong>Ошибка!</strong> Что-то пошло не так. Попробуйте снова.
+          </div>
+        </section>
+
+        <!-- Секция 4: Вкладки -->
+        <section class="practice-section" aria-labelledby="tabs-heading">
+          <h2 id="tabs-heading">Интерфейс вкладок</h2>
+          <p>Практика поиска вкладок и их содержимого</p>
+
+          <div class="tab-container" role="tablist">
+            <div class="tab-buttons">
+              <button
+                class="tab-button"
+                role="tab"
+                aria-selected="true"
+                aria-controls="profile-tab">
+                Профиль
+              </button>
+              <button
+                class="tab-button"
+                role="tab"
+                aria-selected="false"
+                aria-controls="settings-tab">
+                Настройки
+              </button>
+              <button
+                class="tab-button"
+                role="tab"
+                aria-selected="false"
+                aria-controls="messages-tab">
+                Сообщения
+              </button>
+            </div>
+
+            <div id="profile-tab" role="tabpanel" class="tab-panel">
+              <h3>Информация профиля</h3>
+              <p>Редактирование данных профиля.</p>
+            </div>
+
+            <div id="settings-tab" role="tabpanel" class="tab-panel" hidden>
+              <h3>Настройки аккаунта</h3>
+              <p>Конфигурация параметров аккаунта.</p>
+            </div>
+
+            <div id="messages-tab" role="tabpanel" class="tab-panel" hidden>
+              <h3>Сообщения</h3>
+              <p>Просмотр ваших сообщений.</p>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer role="contentinfo">
+        <p>Учебная страница для практики локатора <code>getByRole()</code> в Playwright</p>
+      </footer>
+    </div>
+
+    <script>
+      // Логика вкладок
+      const tabButtons = document.querySelectorAll('[role="tab"]');
+      const tabPanels = document.querySelectorAll('[role="tabpanel"]');
+
+      tabButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          // Сброс всех вкладок
+          tabButtons.forEach((btn) => {
+            btn.setAttribute('aria-selected', 'false');
+          });
+          tabPanels.forEach((panel) => {
+            panel.hidden = true;
+          });
+
+          // Активация выбранной вкладки
+          button.setAttribute('aria-selected', 'true');
+          const panelId = button.getAttribute('aria-controls');
+          document.getElementById(panelId).hidden = false;
+        });
+      });
+    </script>
+  </body>
+</html>
