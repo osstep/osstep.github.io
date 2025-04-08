@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Практика getByText() в Playwright</title>
+    <style>
+      /* Переиспользуем стили из предыдущего примера */
+      :root {
+        --primary: #4361ee;
+        --secondary: #3a0ca3;
+        --accent: #f72585;
+        --light: #f8f9fa;
+        --dark: #212529;
+        --success: #4cc9f0;
+        --warning: #f8961e;
+        --danger: #ef233c;
+      }
+
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        color: var(--dark);
+        background-color: var(--light);
+        margin: 0;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .text-section {
+        background: white;
+        border-radius: 8px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e9ecef;
+      }
+
+      h1,
+      h2,
+      h3 {
+        color: var(--primary);
+      }
+
+      .text-example {
+        margin: 1rem 0;
+        padding: 1rem;
+        border-left: 4px solid var(--primary);
+      }
+
+      .dynamic-content {
+        background-color: #f8f9fa;
+        padding: 1rem;
+        border-radius: 8px;
+        margin: 1rem 0;
+      }
+
+      .partial-match {
+        color: var(--secondary);
+        font-weight: bold;
+      }
+
+      .nested-text {
+        border: 1px solid #dee2e6;
+        padding: 1rem;
+        margin: 1rem 0;
+      }
+
+      .text-with-spaces {
+        white-space: pre-wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Практика локатора getByText()</h1>
+        <p>Тренировка поиска элементов по текстовому содержимому</p>
+      </header>
+
+      <main>
+        <!-- Секция 1: Простой текст -->
+        <section class="text-section">
+          <h2>Простые текстовые элементы</h2>
+          <div class="text-example">
+            <p>Это обычный параграф текста для поиска</p>
+            <div>Текст в div-элементе</div>
+            <span>Текст внутри span</span>
+          </div>
+        </section>
+
+        <!-- Секция 2: Частичное совпадение -->
+        <section class="text-section">
+          <h2>Поиск по частичному совпадению</h2>
+          <div class="text-example">
+            <p class="partial-match">Этот текст содержит <strong>важную</strong> информацию</p>
+            <ul>
+              <li>Элемент списка 1</li>
+              <li>Элемент списка 2</li>
+              <li>Специальный элемент</li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- Секция 3: Вложенные элементы -->
+        <section class="text-section">
+          <h2>Вложенные текстовые элементы</h2>
+          <div class="nested-text">
+            <p>Параграф с <span>вложенным текстом</span> внутри</p>
+            <div>
+              <div>
+                <p>Глубоко вложенный текст</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Секция 4: Динамический контент -->
+        <section class="text-section">
+          <h2>Динамически загружаемый текст</h2>
+          <div id="dynamic-text" class="dynamic-content">
+            <p>Текст появится через 1 секунду...</p>
+          </div>
+        </section>
+
+        <!-- Секция 5: Сложные случаи -->
+        <section class="text-section">
+          <h2>Сложные случаи поиска</h2>
+          <div class="text-with-spaces">Текст с множественными пробелами</div>
+          <div>Текст с переносами<br />строк</div>
+        </section>
+      </main>
+
+      <footer>
+        <p>Учебная страница для практики локатора getByText()</p>
+      </footer>
+    </div>
+
+    <script>
+      // Динамическая загрузка контента
+      setTimeout(() => {
+        document.getElementById('dynamic-text').innerHTML = `
+                <p>Динамически загруженный текст</p>
+                <div>Этот текст появился после загрузки страницы</div>
+            `;
+      }, 1000);
+    </script>
+  </body>
+</html>

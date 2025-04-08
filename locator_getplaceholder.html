@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Практика getByPlaceholder() в Playwright</title>
+    <style>
+      :root {
+        --primary: #4361ee;
+        --secondary: #3a0ca3;
+        --light: #f8f9fa;
+        --dark: #212529;
+      }
+
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        color: var(--dark);
+        background-color: var(--light);
+        margin: 0;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .form-section {
+        background: white;
+        border-radius: 8px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e9ecef;
+      }
+
+      h1,
+      h2 {
+        color: var(--primary);
+      }
+
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      input,
+      textarea,
+      select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ced4da;
+        border-radius: 6px;
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .input-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+      }
+
+      .dynamic-inputs {
+        margin-top: 2rem;
+        padding: 1rem;
+        background-color: #f8f9fa;
+        border-radius: 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Практика локатора getByPlaceholder()</h1>
+        <p>Тренировка поиска элементов по placeholder-атрибуту</p>
+      </header>
+
+      <main>
+        <!-- Секция 1: Простые поля -->
+        <section class="form-section">
+          <h2>Стандартные поля ввода</h2>
+          <div class="form-group">
+            <input type="text" placeholder="Введите ваше имя" />
+          </div>
+          <div class="form-group">
+            <input type="email" placeholder="example@mail.com" />
+          </div>
+          <div class="form-group">
+            <input type="tel" placeholder="+7 (___) ___-__-__" />
+          </div>
+        </section>
+
+        <!-- Секция 2: Разные типы полей -->
+        <section class="form-section">
+          <h2>Разнообразные placeholder'ы</h2>
+          <div class="input-grid">
+            <input type="password" placeholder="Придумайте пароль" />
+            <input type="number" placeholder="Возраст (от 18 лет)" />
+            <input type="date" placeholder="Дата рождения" />
+            <input type="time" placeholder="Время встречи" />
+            <input type="url" placeholder="https://example.com" />
+            <input type="search" placeholder="Поиск по сайту..." />
+          </div>
+        </section>
+
+        <!-- Секция 3: Сложные случаи -->
+        <section class="form-section">
+          <h2>Сложные случаи</h2>
+          <div class="form-group">
+            <textarea
+              placeholder="Введите ваш комментарий здесь... 
+Можно несколько строк"></textarea>
+          </div>
+          <div class="form-group">
+            <select placeholder="Выберите страну">
+              <option value="">Выберите страну</option>
+              <option value="ru">Россия</option>
+              <option value="us">США</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <input type="text" placeholder="  Поле с пробелами в начале  " />
+          </div>
+        </section>
+
+        <!-- Секция 4: Динамические поля -->
+        <section class="form-section">
+          <h2>Динамически добавляемые поля</h2>
+          <div id="dynamic-inputs" class="dynamic-inputs">
+            <p>Динамические поля появятся здесь через 1 секунду...</p>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <p>Учебная страница для практики локатора getByPlaceholder()</p>
+      </footer>
+    </div>
+
+    <script>
+      // Добавляем динамические поля через 1 секунду
+      setTimeout(() => {
+        document.getElementById('dynamic-inputs').innerHTML = `
+                <input type="text" placeholder="Динамическое поле 1">
+                <input type="email" placeholder="dynamic@example.com">
+            `;
+      }, 1000);
+    </script>
+  </body>
+</html>

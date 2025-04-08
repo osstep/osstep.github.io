@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Практика getByTestId() в Playwright</title>
+    <style>
+      :root {
+        --primary: #4361ee;
+        --secondary: #3a0ca3;
+        --light: #f8f9fa;
+        --dark: #212529;
+      }
+
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        color: var(--dark);
+        background-color: var(--light);
+        margin: 0;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .section {
+        background: white;
+        border-radius: 8px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e9ecef;
+      }
+
+      h1,
+      h2 {
+        color: var(--primary);
+      }
+
+      .product-card {
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 1rem;
+        margin: 1rem 0;
+      }
+
+      .button {
+        padding: 0.75rem 1.5rem;
+        background-color: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+
+      .hidden-element {
+        display: none;
+      }
+
+      .dynamic-content {
+        padding: 1.5rem;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        margin-top: 2rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header data-testid="page-header">
+        <h1>Практика локатора getByTestId()</h1>
+        <p>Тренировка поиска элементов по test-id</p>
+      </header>
+
+      <main>
+        <!-- Секция 1: Карточки продуктов -->
+        <section class="section" data-testid="products-section">
+          <h2>Каталог продуктов</h2>
+
+          <div class="product-card" data-testid="product-card-1">
+            <h3 data-testid="product-name">Ноутбук Pro</h3>
+            <p data-testid="product-price">Цена: 99 999 ₽</p>
+            <button class="button" data-testid="add-to-cart-btn">В корзину</button>
+          </div>
+
+          <div class="product-card" data-testid="product-card-2">
+            <h3 data-testid="product-name">Смартфон X</h3>
+            <p data-testid="product-price">Цена: 49 999 ₽</p>
+            <button class="button" data-testid="add-to-cart-btn">В корзину</button>
+          </div>
+        </section>
+
+        <!-- Секция 2: Форма заказа -->
+        <section class="section" data-testid="order-form-section">
+          <h2>Оформление заказа</h2>
+          <form data-testid="order-form">
+            <div data-testid="form-group">
+              <label for="name">Имя</label>
+              <input type="text" id="name" data-testid="name-input" />
+            </div>
+
+            <div data-testid="form-group">
+              <label for="email">Email</label>
+              <input type="email" id="email" data-testid="email-input" />
+            </div>
+
+            <button type="submit" class="button" data-testid="submit-order-btn">
+              Оформить заказ
+            </button>
+          </form>
+        </section>
+
+        <!-- Секция 3: Скрытые и динамические элементы -->
+        <section class="section">
+          <h2>Специальные случаи</h2>
+
+          <div class="hidden-element" data-testid="hidden-element">Этот элемент скрыт</div>
+
+          <div id="dynamic-content" class="dynamic-content" data-testid="dynamic-container">
+            <p>Динамические элементы появятся здесь через 1 секунду...</p>
+          </div>
+        </section>
+      </main>
+
+      <footer data-testid="page-footer">
+        <p data-testid="copyright-text">© 2023 Практика Playwright</p>
+      </footer>
+    </div>
+
+    <script>
+      // Добавляем динамические элементы через 1 секунду
+      setTimeout(() => {
+        document.getElementById('dynamic-content').innerHTML = `
+                <div data-testid="dynamic-element">Динамически добавленный элемент</div>
+                <button data-testid="dynamic-button">Новая кнопка</button>
+            `;
+      }, 1000);
+    </script>
+  </body>
+</html>
