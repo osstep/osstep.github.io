@@ -3,18 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Практика getByText() в Playwright</title>
+    <title>Практика getByLabel() в Playwright</title>
     <style>
-      /* Переиспользуем стили из предыдущего примера */
       :root {
         --primary: #4361ee;
         --secondary: #3a0ca3;
-        --accent: #f72585;
         --light: #f8f9fa;
         --dark: #212529;
-        --success: #4cc9f0;
-        --warning: #f8961e;
-        --danger: #ef233c;
       }
 
       body {
@@ -27,12 +22,12 @@
       }
 
       .container {
-        max-width: 1000px;
+        max-width: 800px;
         margin: 0 auto;
         padding: 20px;
       }
 
-      .text-section {
+      .form-section {
         background: white;
         border-radius: 8px;
         padding: 2rem;
@@ -42,113 +37,149 @@
       }
 
       h1,
-      h2,
-      h3 {
+      h2 {
         color: var(--primary);
       }
 
-      .text-example {
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+      }
+
+      input,
+      select,
+      textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ced4da;
+        border-radius: 6px;
+        font-size: 1rem;
+      }
+
+      .checkbox-group,
+      .radio-group {
         margin: 1rem 0;
-        padding: 1rem;
-        border-left: 4px solid var(--primary);
       }
 
-      .dynamic-content {
-        background-color: #f8f9fa;
-        padding: 1rem;
-        border-radius: 8px;
-        margin: 1rem 0;
+      .checkbox-label,
+      .radio-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
       }
 
-      .partial-match {
-        color: var(--secondary);
-        font-weight: bold;
+      .inline-form {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
       }
 
-      .nested-text {
-        border: 1px solid #dee2e6;
-        padding: 1rem;
-        margin: 1rem 0;
-      }
-
-      .text-with-spaces {
-        white-space: pre-wrap;
+      .hidden-label {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
       }
     </style>
   </head>
   <body>
     <div class="container">
       <header>
-        <h1>Практика локатора getByText()</h1>
-        <p>Тренировка поиска элементов по текстовому содержимому</p>
+        <h1>Практика локатора getByLabel()</h1>
+        <p>Тренировка поиска элементов формы по связанным меткам</p>
       </header>
 
       <main>
-        <!-- Секция 1: Простой текст -->
-        <section class="text-section">
-          <h2>Простые текстовые элементы</h2>
-          <div class="text-example">
-            <p>Это обычный параграф текста для поиска</p>
-            <div>Текст в div-элементе</div>
-            <span>Текст внутри span</span>
-          </div>
+        <!-- Секция 1: Простые поля с label -->
+        <section class="form-section">
+          <h2>Стандартные поля формы</h2>
+          <form>
+            <div class="form-group">
+              <label for="username">Имя пользователя</label>
+              <input type="text" id="username" placeholder="Введите ваше имя" />
+            </div>
+
+            <div class="form-group">
+              <label for="email">Электронная почта</label>
+              <input type="email" id="email" placeholder="example@mail.com" />
+            </div>
+
+            <div class="form-group">
+              <label for="age">Возраст</label>
+              <input type="number" id="age" min="18" max="99" />
+            </div>
+          </form>
         </section>
 
-        <!-- Секция 2: Частичное совпадение -->
-        <section class="text-section">
-          <h2>Поиск по частичному совпадению</h2>
-          <div class="text-example">
-            <p class="partial-match">Этот текст содержит <strong>важную</strong> информацию</p>
-            <ul>
-              <li>Элемент списка 1</li>
-              <li>Элемент списка 2</li>
-              <li>Специальный элемент</li>
-            </ul>
-          </div>
-        </section>
-
-        <!-- Секция 3: Вложенные элементы -->
-        <section class="text-section">
-          <h2>Вложенные текстовые элементы</h2>
-          <div class="nested-text">
-            <p>Параграф с <span>вложенным текстом</span> внутри</p>
-            <div>
-              <div>
-                <p>Глубоко вложенный текст</p>
+        <!-- Секция 2: Чекбоксы и радиокнопки -->
+        <section class="form-section">
+          <h2>Чекбоксы и радиокнопки</h2>
+          <form>
+            <div class="checkbox-group">
+              <label>Выберите интересы:</label>
+              <div class="checkbox-label">
+                <input type="checkbox" id="sports" name="interests" />
+                <label for="sports">Спорт</label>
+              </div>
+              <div class="checkbox-label">
+                <input type="checkbox" id="music" name="interests" checked />
+                <label for="music">Музыка</label>
               </div>
             </div>
-          </div>
+
+            <div class="radio-group">
+              <label>Выберите пол:</label>
+              <div class="radio-label">
+                <input type="radio" id="male" name="gender" value="male" />
+                <label for="male">Мужской</label>
+              </div>
+              <div class="radio-label">
+                <input type="radio" id="female" name="gender" value="female" checked />
+                <label for="female">Женский</label>
+              </div>
+            </div>
+          </form>
         </section>
 
-        <!-- Секция 4: Динамический контент -->
-        <section class="text-section">
-          <h2>Динамически загружаемый текст</h2>
-          <div id="dynamic-text" class="dynamic-content">
-            <p>Текст появится через 1 секунду...</p>
-          </div>
-        </section>
+        <!-- Секция 3: Сложные случаи -->
+        <section class="form-section">
+          <h2>Сложные случаи</h2>
+          <form>
+            <div class="form-group">
+              <label>
+                <span>Телефон</span>
+                <input type="tel" placeholder="+7 (XXX) XXX-XX-XX" />
+              </label>
+            </div>
 
-        <!-- Секция 5: Сложные случаи -->
-        <section class="text-section">
-          <h2>Сложные случаи поиска</h2>
-          <div class="text-with-spaces">Текст с множественными пробелами</div>
-          <div>Текст с переносами<br />строк</div>
+            <div class="form-group">
+              <label id="address-label">Адрес доставки</label>
+              <textarea aria-labelledby="address-label"></textarea>
+            </div>
+
+            <div class="inline-form">
+              <label for="search" class="hidden-label">Поиск</label>
+              <input type="search" id="search" placeholder="Поиск..." />
+              <button type="submit">Найти</button>
+            </div>
+          </form>
         </section>
       </main>
 
       <footer>
-        <p>Учебная страница для практики локатора getByText()</p>
+        <p>Учебная страница для практики локатора getByLabel()</p>
       </footer>
     </div>
-
-    <script>
-      // Динамическая загрузка контента
-      setTimeout(() => {
-        document.getElementById('dynamic-text').innerHTML = `
-                <p>Динамически загруженный текст</p>
-                <div>Этот текст появился после загрузки страницы</div>
-            `;
-      }, 1000);
-    </script>
   </body>
 </html>
