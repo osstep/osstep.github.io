@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Практика toHaveURL</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      nav {
+        background-color: #f5f5f5;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+      }
+      nav a {
+        margin-right: 15px;
+        text-decoration: none;
+        color: #4285f4;
+      }
+      nav a:hover {
+        text-decoration: underline;
+      }
+      section {
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        margin-bottom: 15px;
+      }
+      button {
+        padding: 8px 15px;
+        background-color: #4285f4;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 5px;
+      }
+      .hidden {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Практика проверки URL</h1>
+
+    <nav>
+      <a href="#home" id="home-link">Главная</a>
+      <a href="#about" id="about-link">О нас</a>
+      <a href="#contacts" id="contacts-link">Контакты</a>
+      <a href="https://example.com" id="external-link">Внешняя ссылка</a>
+    </nav>
+
+    <section id="home-section">
+      <h2>Главная страница</h2>
+      <p>Добро пожаловать на наш сайт!</p>
+      <button id="redirect-btn">Перейти в раздел</button>
+    </section>
+
+    <section id="about-section" class="hidden">
+      <h2>О нас</h2>
+      <p>Информация о нашей компании.</p>
+    </section>
+
+    <section id="contacts-section" class="hidden">
+      <h2>Контакты</h2>
+      <p>Наши контактные данные.</p>
+      <button id="back-btn">Вернуться назад</button>
+    </section>
+
+    <script>
+      // Обработка навигации
+      function showSection(sectionId) {
+        document.querySelectorAll('section').forEach((section) => {
+          section.classList.add('hidden');
+        });
+        document.getElementById(sectionId + '-section').classList.remove('hidden');
+
+        // Изменяем URL без перезагрузки страницы
+        history.pushState(null, null, '#' + sectionId);
+      }
+
+      // Обработчики для навигационных ссылок
+      document.getElementById('home-link').addEventListener('click', (e) => {
+        e.preventDefault();
+        showSection('home');
+      });
+
+      document.getElementById('about-link').addEventListener('click', (e) => {
+        e.preventDefault();
+        showSection('about');
+      });
+
+      document.getElementById('contacts-link').addEventListener('click', (e) => {
+        e.preventDefault();
+        showSection('contacts');
+      });
+
+      // Обработчик для кнопки перенаправления
+      document.getElementById('redirect-btn').addEventListener('click', () => {
+        showSection('contacts');
+      });
+
+      // Обработчик для кнопки "Назад"
+      document.getElementById('back-btn').addEventListener('click', () => {
+        history.back();
+      });
+
+      // Показываем правильную секцию при загрузке по хешу
+      window.addEventListener('load', () => {
+        const hash = window.location.hash.substring(1);
+        if (hash && document.getElementById(hash + '-section')) {
+          showSection(hash);
+        }
+      });
+
+      // Обработка кнопки "Назад" в браузере
+      window.addEventListener('popstate', () => {
+        const hash = window.location.hash.substring(1);
+        if (hash && document.getElementById(hash + '-section')) {
+          showSection(hash);
+        } else {
+          showSection('home');
+        }
+      });
+    </script>
+  </body>
+</html>

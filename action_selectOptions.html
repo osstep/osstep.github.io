@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Практика selectOption() в Playwright</title>
+    <style>
+      :root {
+        --primary: #4361ee;
+        --secondary: #3a0ca3;
+        --light: #f8f9fa;
+        --dark: #212529;
+      }
+
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        color: var(--dark);
+        background-color: var(--light);
+        margin: 0;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .form-section {
+        background: white;
+        border-radius: 8px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e9ecef;
+      }
+
+      .form-group {
+        margin-bottom: 1rem;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+      }
+
+      select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ced4da;
+        border-radius: 6px;
+        font-size: 1rem;
+      }
+
+      .select-feedback {
+        margin-top: 0.5rem;
+        padding: 0.5rem;
+        border-radius: 4px;
+      }
+
+      .select-feedback.selected {
+        background-color: #d4edda;
+        color: #155724;
+      }
+
+      .dynamic-selects {
+        margin-top: 2rem;
+        padding: 1rem;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Практика действия selectOption() в Playwright</h1>
+
+      <!-- Секция 1: Одиночный выбор -->
+      <section class="form-section">
+        <h2>Одиночный выбор</h2>
+        <div class="form-group">
+          <label for="country">Страна</label>
+          <select id="country">
+            <option value="">Выберите страну</option>
+            <option value="ru">Россия</option>
+            <option value="us">США</option>
+            <option value="de">Германия</option>
+          </select>
+          <div id="country-feedback" class="select-feedback">Не выбрано</div>
+        </div>
+      </section>
+
+      <!-- Секция 2: Множественный выбор -->
+      <section class="form-section">
+        <h2>Множественный выбор</h2>
+        <div class="form-group">
+          <label for="languages">Языки программирования</label>
+          <select id="languages" multiple size="4">
+            <option value="js">JavaScript</option>
+            <option value="py">Python</option>
+            <option value="java">Java</option>
+            <option value="cs">C#</option>
+          </select>
+          <div id="languages-feedback" class="select-feedback">Выбрано: 0</div>
+        </div>
+      </section>
+
+      <!-- Секция 3: Группированные опции -->
+      <section class="form-section">
+        <h2>Группированные опции</h2>
+        <div class="form-group">
+          <label for="car-brand">Марка автомобиля</label>
+          <select id="car-brand">
+            <option value="">Выберите марку</option>
+            <optgroup label="Немецкие">
+              <option value="bmw">BMW</option>
+              <option value="audi">Audi</option>
+            </optgroup>
+            <optgroup label="Японские">
+              <option value="toyota">Toyota</option>
+              <option value="honda">Honda</option>
+            </optgroup>
+          </select>
+        </div>
+      </section>
+
+      <!-- Секция 4: Динамические select -->
+      <section class="form-section">
+        <h2>Динамически добавляемые select</h2>
+        <div id="dynamic-selects" class="dynamic-selects">
+          <p>Select элементы появятся здесь через 1 секунду...</p>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      // Обработка выбора страны
+      document.getElementById('country').addEventListener('change', function () {
+        const feedback = document.getElementById('country-feedback');
+        if (this.value) {
+          feedback.textContent = `Выбрано: ${this.options[this.selectedIndex].text}`;
+          feedback.classList.add('selected');
+        } else {
+          feedback.textContent = 'Не выбрано';
+          feedback.classList.remove('selected');
+        }
+      });
+
+      // Обработка множественного выбора
+      document.getElementById('languages').addEventListener('change', function () {
+        const selected = Array.from(this.selectedOptions).map((opt) => opt.text);
+        const feedback = document.getElementById('languages-feedback');
+        feedback.textContent = `Выбрано: ${selected.join(', ')}`;
+        feedback.classList.toggle('selected', selected.length > 0);
+      });
+
+      // Динамическое добавление select элементов
+      setTimeout(() => {
+        document.getElementById('dynamic-selects').innerHTML = `
+                <div class="form-group">
+                    <label for="dynamic-select">Динамический select</label>
+                    <select id="dynamic-select">
+                        <option value="">Выберите опцию</option>
+                        <option value="opt1">Опция 1</option>
+                        <option value="opt2">Опция 2</option>
+                        <option value="opt3">Опция 3</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="dynamic-multi-select">Динамический множественный select</label>
+                    <select id="dynamic-multi-select" multiple size="3">
+                        <option value="m1">Множественная 1</option>
+                        <option value="m2">Множественная 2</option>
+                        <option value="m3">Множественная 3</option>
+                    </select>
+                </div>
+            `;
+      }, 1000);
+    </script>
+  </body>
+</html>

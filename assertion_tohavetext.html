@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>toHaveText Practice</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        line-height: 1.6;
+      }
+      .text-box {
+        margin: 15px 0;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+      }
+      button {
+        padding: 8px 15px;
+        margin: 5px;
+        background-color: #4285f4;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .counter {
+        font-size: 24px;
+        font-weight: bold;
+        margin: 10px 0;
+      }
+      .user-card {
+        border: 1px solid #ccc;
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 5px;
+      }
+      .status {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 3px;
+        font-size: 12px;
+        margin-left: 10px;
+      }
+      .active {
+        background-color: #0f9d58;
+        color: white;
+      }
+      .inactive {
+        background-color: #db4437;
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Practice toHaveText()</h1>
+
+    <!-- Блок 1: Точное соответствие текста -->
+    <div class="text-box" id="exact-text">
+      This text must match exactly, including punctuation! (100%)
+    </div>
+
+    <!-- Блок 2: Счетчик -->
+    <div>
+      <h3>Counter</h3>
+      <div class="counter" id="counter">0</div>
+      <button id="increment">Increment</button>
+      <button id="reset">Reset</button>
+    </div>
+
+    <!-- Блок 3: Карточка пользователя -->
+    <div class="user-card" id="user-card">
+      <h3 id="username">user_guest</h3>
+      <div>Email: <span id="user-email">guest@example.com</span></div>
+      <div>Status: <span id="user-status" class="status inactive">Inactive</span></div>
+    </div>
+    <button id="activate-user">Activate User</button>
+
+    <!-- Блок 4: Форматированный текст -->
+    <div class="text-box" id="formatted-text">Text with extra spaces and line breaks</div>
+
+    <!-- Блок 5: Динамический список -->
+    <div>
+      <h3>Items List</h3>
+      <ul id="items-list">
+        <li>First item</li>
+        <li>Second item</li>
+      </ul>
+      <button id="add-item">Add Item</button>
+      <button id="clear-list">Clear List</button>
+    </div>
+
+    <script>
+      // Логика счетчика
+      let count = 0;
+      const counterEl = document.getElementById('counter');
+
+      document.getElementById('increment').addEventListener('click', () => {
+        count++;
+        counterEl.textContent = count;
+      });
+
+      document.getElementById('reset').addEventListener('click', () => {
+        count = 0;
+        counterEl.textContent = count;
+      });
+
+      // Логика пользователя
+      document.getElementById('activate-user').addEventListener('click', () => {
+        const statusEl = document.getElementById('user-status');
+        if (statusEl.classList.contains('inactive')) {
+          statusEl.classList.remove('inactive');
+          statusEl.classList.add('active');
+          statusEl.textContent = 'Active';
+          document.getElementById('username').textContent = 'user_active';
+          document.getElementById('user-email').textContent = 'active.user@example.com';
+        } else {
+          statusEl.classList.remove('active');
+          statusEl.classList.add('inactive');
+          statusEl.textContent = 'Inactive';
+          document.getElementById('username').textContent = 'user_guest';
+          document.getElementById('user-email').textContent = 'guest@example.com';
+        }
+      });
+
+      // Логика списка
+      let itemCount = 2;
+      document.getElementById('add-item').addEventListener('click', () => {
+        itemCount++;
+        const li = document.createElement('li');
+        li.textContent = `Item ${itemCount}`;
+        document.getElementById('items-list').appendChild(li);
+      });
+
+      document.getElementById('clear-list').addEventListener('click', () => {
+        document.getElementById('items-list').innerHTML = '<li>Empty list</li>';
+      });
+    </script>
+  </body>
+</html>

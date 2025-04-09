@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Практика hover в Playwright</title>
+    <style>
+      :root {
+        --primary: #4361ee;
+        --secondary: #3a0ca3;
+        --light: #f8f9fa;
+        --dark: #212529;
+      }
+
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        color: var(--dark);
+        background-color: var(--light);
+        margin: 0;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .hover-section {
+        background: white;
+        border-radius: 8px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e9ecef;
+      }
+
+      .hover-box {
+        width: 200px;
+        height: 200px;
+        background-color: #e9ecef;
+        margin: 1rem 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+      }
+
+      .hover-box:hover {
+        background-color: var(--primary);
+        color: white;
+      }
+
+      .tooltip {
+        position: relative;
+        display: inline-block;
+        border-bottom: 1px dotted var(--dark);
+        cursor: help;
+        margin: 1rem 0;
+      }
+
+      .tooltip .tooltip-text {
+        visibility: hidden;
+        width: 200px;
+        background-color: var(--dark);
+        color: white;
+        text-align: center;
+        border-radius: 4px;
+        padding: 0.5rem;
+        position: absolute;
+        z-index: 1;
+        bottom: 125%;
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+
+      .tooltip:hover .tooltip-text {
+        visibility: visible;
+        opacity: 1;
+      }
+
+      .menu {
+        list-style: none;
+        padding: 0;
+      }
+
+      .menu-item {
+        padding: 0.5rem 1rem;
+        margin: 0.25rem 0;
+        background-color: #e9ecef;
+        cursor: pointer;
+      }
+
+      .menu-item:hover {
+        background-color: var(--primary);
+        color: white;
+      }
+
+      .submenu {
+        display: none;
+        padding-left: 1rem;
+      }
+
+      .menu-item:hover .submenu {
+        display: block;
+      }
+
+      #hover-log {
+        margin-top: 1rem;
+        padding: 1rem;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+        min-height: 100px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Практика действия hover в Playwright</h1>
+
+      <!-- Секция 1: Простой hover с изменением стилей -->
+      <div class="hover-section">
+        <h2>Базовый hover эффект</h2>
+        <div class="hover-box" id="simple-hover">Наведи на меня</div>
+        <div id="hover-state">Состояние: не наведено</div>
+      </div>
+
+      <!-- Секция 2: Всплывающие подсказки -->
+      <div class="hover-section">
+        <h2>Всплывающие подсказки</h2>
+        <div class="tooltip">
+          Наведи чтобы увидеть подсказку
+          <span class="tooltip-text">Это текст подсказки</span>
+        </div>
+      </div>
+
+      <!-- Секция 3: Выпадающие меню -->
+      <div class="hover-section">
+        <h2>Выпадающее меню</h2>
+        <ul class="menu">
+          <li class="menu-item">
+            Меню 1
+            <ul class="submenu">
+              <li class="menu-item">Подменю 1.1</li>
+              <li class="menu-item">Подменю 1.2</li>
+            </ul>
+          </li>
+          <li class="menu-item">
+            Меню 2
+            <ul class="submenu">
+              <li class="menu-item">Подменю 2.1</li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Секция 4: Лог событий -->
+      <div class="hover-section">
+        <h2>Лог hover событий</h2>
+        <div id="hover-log"></div>
+      </div>
+    </div>
+
+    <script>
+      // Логирование hover событий
+      document.getElementById('simple-hover').addEventListener('mouseenter', () => {
+        document.getElementById('hover-state').textContent = 'Состояние: наведено';
+        logHoverEvent('Наведение на простой блок');
+      });
+
+      document.getElementById('simple-hover').addEventListener('mouseleave', () => {
+        document.getElementById('hover-state').textContent = 'Состояние: не наведено';
+        logHoverEvent('Уход с простого блока');
+      });
+
+      function logHoverEvent(message) {
+        const log = document.getElementById('hover-log');
+        const entry = document.createElement('div');
+        entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+        log.prepend(entry);
+      }
+    </script>
+  </body>
+</html>

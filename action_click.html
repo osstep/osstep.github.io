@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Практика кликов в Playwright</title>
+    <style>
+      :root {
+        --primary: #4361ee;
+        --secondary: #3a0ca3;
+        --light: #f8f9fa;
+        --dark: #212529;
+      }
+
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        color: var(--dark);
+        background-color: var(--light);
+        margin: 0;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .click-section {
+        background: white;
+        border-radius: 8px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e9ecef;
+      }
+
+      .click-area {
+        width: 200px;
+        height: 200px;
+        background-color: #e9ecef;
+        margin: 1rem 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        user-select: none;
+      }
+
+      .click-counter {
+        font-size: 3rem;
+        font-weight: bold;
+      }
+
+      .context-menu {
+        position: absolute;
+        background: white;
+        border: 1px solid #ddd;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+        display: none;
+      }
+
+      .context-menu.visible {
+        display: block;
+      }
+
+      .menu-item {
+        padding: 8px 12px;
+        cursor: pointer;
+      }
+
+      .menu-item:hover {
+        background-color: #f0f0f0;
+      }
+
+      #click-log {
+        margin-top: 1rem;
+        padding: 1rem;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+        min-height: 100px;
+      }
+
+      .btn {
+        padding: 0.5rem 1rem;
+        background-color: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 0.5rem;
+      }
+
+      .btn-dblclick {
+        background-color: var(--secondary);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Практика кликов в Playwright</h1>
+
+      <!-- Секция 1: Простые клики -->
+      <div class="click-section">
+        <h2>Обычные клики</h2>
+        <button id="simple-click" class="btn">Кликни меня</button>
+        <div id="click-result">Результат: 0 кликов</div>
+      </div>
+
+      <!-- Секция 2: Двойные клики -->
+      <div class="click-section">
+        <h2>Двойные клики</h2>
+        <div id="dblclick-area" class="click-area">
+          <span class="click-counter">0</span>
+        </div>
+        <p>Дважды кликни в серой области</p>
+      </div>
+
+      <!-- Секция 3: Правый клик и контекстное меню -->
+      <div class="click-section">
+        <h2>Правый клик</h2>
+        <div id="rightclick-area" class="click-area">Кликни правой кнопкой</div>
+        <div id="context-menu" class="context-menu">
+          <div class="menu-item" id="menu-copy">Копировать</div>
+          <div class="menu-item" id="menu-paste">Вставить</div>
+          <div class="menu-item" id="menu-delete">Удалить</div>
+        </div>
+        <div id="menu-action">Выберите действие из меню</div>
+      </div>
+
+      <!-- Секция 4: Клики по координатам -->
+      <div class="click-section">
+        <h2>Клик по координатам</h2>
+        <div id="coord-click-area" class="click-area">Кликни в любом месте</div>
+        <div id="click-position">Позиция: (0, 0)</div>
+      </div>
+
+      <!-- Секция 5: Комбинированные действия -->
+      <div class="click-section">
+        <h2>Комбинированные действия</h2>
+        <button id="btn-hold" class="btn">Удерживай меня</button>
+        <div id="hold-status">Статус: не нажата</div>
+      </div>
+
+      <!-- Лог событий -->
+      <div class="click-section">
+        <h2>Лог кликов</h2>
+        <div id="click-log"></div>
+      </div>
+    </div>
+
+    <script>
+      // Простые клики
+      let clickCount = 0;
+      document.getElementById('simple-click').addEventListener('click', () => {
+        clickCount++;
+        document.getElementById('click-result').textContent = `Результат: ${clickCount} кликов`;
+        logEvent('Обычный клик на кнопке');
+      });
+
+      // Двойные клики
+      let dblClickCount = 0;
+      document.getElementById('dblclick-area').addEventListener('dblclick', () => {
+        dblClickCount++;
+        document.querySelector('#dblclick-area .click-counter').textContent = dblClickCount;
+        logEvent(`Двойной клик (${dblClickCount})`);
+      });
+
+      // Правый клик и контекстное меню
+      const contextMenu = document.getElementById('context-menu');
+      document.getElementById('rightclick-area').addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        contextMenu.style.left = `${e.clientX}px`;
+        contextMenu.style.top = `${e.clientY}px`;
+        contextMenu.classList.add('visible');
+        logEvent('Правый клик');
+      });
+
+      // Закрытие меню при клике вне его
+      document.addEventListener('click', () => {
+        contextMenu.classList.remove('visible');
+      });
+
+      // Обработка выбора в меню
+      document.querySelectorAll('.menu-item').forEach((item) => {
+        item.addEventListener('click', (e) => {
+          e.stopPropagation();
+          document.getElementById('menu-action').textContent = `Выбрано: ${item.textContent}`;
+          contextMenu.classList.remove('visible');
+          logEvent(`Выбрано меню: ${item.textContent}`);
+        });
+      });
+
+      // Клик по координатам
+      document.getElementById('coord-click-area').addEventListener('click', (e) => {
+        const rect = e.target.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        document.getElementById('click-position').textContent = `Позиция: (${Math.round(
+          x,
+        )}, ${Math.round(y)})`;
+        logEvent(`Клик в позиции: ${Math.round(x)}, ${Math.round(y)}`);
+      });
+
+      // Удержание кнопки
+      const holdBtn = document.getElementById('btn-hold');
+      holdBtn.addEventListener('mousedown', () => {
+        document.getElementById('hold-status').textContent = 'Статус: нажата';
+        logEvent('Кнопка нажата (удержание)');
+      });
+
+      holdBtn.addEventListener('mouseup', () => {
+        document.getElementById('hold-status').textContent = 'Статус: отпущена';
+        logEvent('Кнопка отпущена');
+      });
+
+      // Логгирование событий
+      function logEvent(message) {
+        const log = document.getElementById('click-log');
+        const entry = document.createElement('div');
+        entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+        log.prepend(entry);
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Практика toHaveAttribute</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .card {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 10px 0;
+      }
+      button {
+        padding: 8px 15px;
+        background-color: #4285f4;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 5px;
+      }
+      .disabled {
+        opacity: 0.5;
+        pointer-events: none;
+      }
+      .active {
+        border: 2px solid #0f9d58;
+      }
+      .hidden {
+        display: none;
+      }
+      img {
+        max-width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Практика проверки атрибутов</h1>
+
+    <!-- Карточка 1: Кнопки с изменяющимися атрибутами -->
+    <div class="card">
+      <h2>Управление кнопками</h2>
+      <button id="main-btn" data-action="submit" title="Основная кнопка">Отправить</button>
+      <button id="toggle-btn">Переключить атрибуты</button>
+      <button id="disable-btn">Отключить кнопку</button>
+    </div>
+
+    <!-- Карточка 2: Изображение с изменяющимися атрибутами -->
+    <div class="card">
+      <h2>Изображение</h2>
+      <img id="profile-image" src="user.jpg" alt="Аватар пользователя" width="200" loading="lazy" />
+      <button id="change-img">Изменить изображение</button>
+    </div>
+
+    <!-- Карточка 3: Форма с валидацией -->
+    <div class="card">
+      <h2>Проверка формы</h2>
+      <input type="text" id="username" placeholder="Имя пользователя" required minlength="3" />
+      <input type="email" id="email" placeholder="Email" disabled />
+      <button id="enable-email">Активировать email</button>
+    </div>
+
+    <!-- Карточка 4: Элементы с data-атрибутами -->
+    <div class="card">
+      <h2>Data-атрибуты</h2>
+      <div id="data-container" data-role="container" data-visible="true" data-user-id="12345">
+        Контейнер с data-атрибутами
+      </div>
+      <button id="update-data">Обновить data-атрибуты</button>
+    </div>
+
+    <script>
+      // Логика для кнопок
+      document.getElementById('toggle-btn').addEventListener('click', function () {
+        const btn = document.getElementById('main-btn');
+        btn.setAttribute(
+          'data-action',
+          btn.getAttribute('data-action') === 'submit' ? 'cancel' : 'submit',
+        );
+        btn.setAttribute(
+          'title',
+          btn.getAttribute('data-action') === 'submit' ? 'Основная кнопка' : 'Отмена действия',
+        );
+      });
+
+      document.getElementById('disable-btn').addEventListener('click', function () {
+        const btn = document.getElementById('main-btn');
+        btn.classList.toggle('disabled');
+        btn.toggleAttribute('disabled');
+      });
+
+      // Логика для изображения
+      document.getElementById('change-img').addEventListener('click', function () {
+        const img = document.getElementById('profile-image');
+        img.setAttribute('src', img.getAttribute('src') === 'user.jpg' ? 'admin.jpg' : 'user.jpg');
+        img.setAttribute(
+          'alt',
+          img.getAttribute('src') === 'user.jpg' ? 'Аватар администратора' : 'Аватар пользователя',
+        );
+      });
+
+      // Логика для формы
+      document.getElementById('enable-email').addEventListener('click', function () {
+        const email = document.getElementById('email');
+        email.toggleAttribute('disabled');
+        email.setAttribute(
+          'placeholder',
+          email.hasAttribute('disabled') ? 'Email' : 'Введите ваш email',
+        );
+      });
+
+      // Логика для data-атрибутов
+      document.getElementById('update-data').addEventListener('click', function () {
+        const container = document.getElementById('data-container');
+        container.setAttribute(
+          'data-visible',
+          container.getAttribute('data-visible') === 'true' ? 'false' : 'true',
+        );
+        container.setAttribute('data-user-id', Math.floor(Math.random() * 10000));
+      });
+    </script>
+  </body>
+</html>

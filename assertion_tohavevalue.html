@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Практика toHaveValue</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      input,
+      textarea,
+      select {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+      button {
+        padding: 8px 15px;
+        background-color: #4285f4;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-right: 10px;
+      }
+      .output {
+        margin-top: 20px;
+        padding: 10px;
+        background-color: #f5f5f5;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Практика метода toHaveValue</h1>
+
+    <div class="form-group">
+      <label for="username">Имя пользователя:</label>
+      <input type="text" id="username" placeholder="Введите ваше имя" value="Гость" />
+    </div>
+
+    <div class="form-group">
+      <label for="email">Электронная почта:</label>
+      <input type="email" id="email" placeholder="email@example.com" />
+    </div>
+
+    <div class="form-group">
+      <label for="phone">Телефон:</label>
+      <input type="tel" id="phone" placeholder="+7 (XXX) XXX-XX-XX" value="+7" />
+    </div>
+
+    <div class="form-group">
+      <label for="comments">Комментарии:</label>
+      <textarea id="comments" rows="3"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="country">Страна:</label>
+      <select id="country">
+        <option value="">-- Выберите страну --</option>
+        <option value="ru" selected>Россия</option>
+        <option value="kz">Казахстан</option>
+        <option value="by">Беларусь</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <button id="update-btn">Обновить данные</button>
+      <button id="reset-btn">Сбросить</button>
+    </div>
+
+    <div class="output" id="output"></div>
+
+    <script>
+      document.getElementById('update-btn').addEventListener('click', function () {
+        const username = document.getElementById('username').value;
+        const email = document.getElementById('email').value || 'не указано';
+        const phone = document.getElementById('phone').value || 'не указан';
+        const comments = document.getElementById('comments').value || 'нет комментариев';
+        const country = document.getElementById('country').value;
+
+        document.getElementById(
+          'output',
+        ).textContent = `Данные обновлены: ${username}, ${email}, ${phone}, ${country}. Комментарий: ${comments}`;
+      });
+
+      document.getElementById('reset-btn').addEventListener('click', function () {
+        document.getElementById('username').value = 'Гость';
+        document.getElementById('email').value = '';
+        document.getElementById('phone').value = '+7';
+        document.getElementById('comments').value = '';
+        document.getElementById('country').value = 'ru';
+        document.getElementById('output').textContent = '';
+      });
+    </script>
+  </body>
+</html>

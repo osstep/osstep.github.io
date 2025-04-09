@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Практика fill() в Playwright</title>
+    <style>
+      :root {
+        --primary: #4361ee;
+        --secondary: #3a0ca3;
+        --light: #f8f9fa;
+        --dark: #212529;
+      }
+
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        color: var(--dark);
+        background-color: var(--light);
+        margin: 0;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .form-section {
+        background: white;
+        border-radius: 8px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e9ecef;
+      }
+
+      .form-group {
+        margin-bottom: 1rem;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+      }
+
+      input,
+      textarea,
+      select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ced4da;
+        border-radius: 6px;
+        font-size: 1rem;
+      }
+
+      .input-feedback {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+        display: none;
+      }
+
+      .dynamic-form {
+        margin-top: 2rem;
+        padding: 1rem;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Практика действия fill() в Playwright</h1>
+
+      <!-- Секция 1: Простые поля ввода -->
+      <section class="form-section">
+        <h2>Базовые поля формы</h2>
+        <form id="basic-form">
+          <div class="form-group">
+            <label for="username">Имя пользователя</label>
+            <input type="text" id="username" placeholder="Введите ваше имя" />
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email адрес</label>
+            <input type="email" id="email" placeholder="example@mail.com" />
+            <div class="input-feedback" id="email-feedback">Введите корректный email</div>
+          </div>
+
+          <div class="form-group">
+            <label for="password">Пароль</label>
+            <input type="password" id="password" />
+          </div>
+        </form>
+      </section>
+
+      <!-- Секция 2: Специальные поля -->
+      <section class="form-section">
+        <h2>Специальные типы полей</h2>
+        <form id="special-form">
+          <div class="form-group">
+            <label for="bio">Краткая биография</label>
+            <textarea id="bio" rows="4" placeholder="Расскажите о себе"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="age">Возраст</label>
+            <input type="number" id="age" min="18" max="99" />
+          </div>
+
+          <div class="form-group">
+            <label for="country">Страна</label>
+            <select id="country">
+              <option value="">Выберите страну</option>
+              <option value="ru">Россия</option>
+              <option value="us">США</option>
+              <option value="de">Германия</option>
+            </select>
+          </div>
+        </form>
+      </section>
+
+      <!-- Секция 3: Валидация -->
+      <section class="form-section">
+        <h2>Поля с валидацией</h2>
+        <form id="validation-form">
+          <div class="form-group">
+            <label for="phone">Телефон</label>
+            <input type="tel" id="phone" pattern="[0-9]{10}" placeholder="10 цифр без пробелов" />
+            <div class="input-feedback" id="phone-feedback">Требуется 10 цифр</div>
+          </div>
+
+          <div class="form-group">
+            <label for="credit-card">Кредитная карта</label>
+            <input type="text" id="credit-card" placeholder="xxxx xxxx xxxx xxxx" />
+          </div>
+        </form>
+      </section>
+
+      <!-- Секция 4: Динамические поля -->
+      <section class="form-section">
+        <h2>Динамически добавляемые поля</h2>
+        <div id="dynamic-form" class="dynamic-form">
+          <p>Поля появятся здесь через 1 секунду...</p>
+        </div>
+      </section>
+
+      <!-- Лог заполнения -->
+      <section class="form-section">
+        <h2>Лог заполнения</h2>
+        <div id="fill-log"></div>
+      </section>
+    </div>
+
+    <script>
+      // Валидация email
+      document.getElementById('email').addEventListener('blur', function () {
+        const email = this.value;
+        const feedback = document.getElementById('email-feedback');
+
+        if (email && !email.includes('@')) {
+          feedback.style.display = 'block';
+        } else {
+          feedback.style.display = 'none';
+        }
+        logFill(`Email валидация: ${email}`);
+      });
+
+      // Валидация телефона
+      document.getElementById('phone').addEventListener('input', function () {
+        const phone = this.value;
+        const feedback = document.getElementById('phone-feedback');
+
+        if (phone && !/^\d{10}$/.test(phone)) {
+          feedback.style.display = 'block';
+        } else {
+          feedback.style.display = 'none';
+        }
+      });
+
+      // Динамическое добавление полей
+      setTimeout(() => {
+        document.getElementById('dynamic-form').innerHTML = `
+                <form id="dynamic-fields">
+                    <div class="form-group">
+                        <label for="dynamic-input">Динамическое поле</label>
+                        <input type="text" id="dynamic-input" placeholder="Это поле добавлено динамически">
+                    </div>
+                    <div class="form-group">
+                        <label for="dynamic-textarea">Динамический textarea</label>
+                        <textarea id="dynamic-textarea" rows="2"></textarea>
+                    </div>
+                </form>
+            `;
+      }, 1000);
+
+      // Логирование заполнения
+      function logFill(message) {
+        const log = document.getElementById('fill-log');
+        const entry = document.createElement('div');
+        entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+        log.prepend(entry);
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Практика filter() с встроенными локаторами</title>
+    <style>
+      :root {
+        --primary: #4361ee;
+        --secondary: #3a0ca3;
+        --light: #f8f9fa;
+        --dark: #212529;
+      }
+
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        color: var(--dark);
+        background-color: var(--light);
+        margin: 0;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .section {
+        background: white;
+        border-radius: 8px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e9ecef;
+      }
+
+      h1,
+      h2 {
+        color: var(--primary);
+      }
+
+      button {
+        padding: 0.5rem 1rem;
+        background-color: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 0.5rem 0;
+      }
+
+      button[disabled] {
+        background-color: #adb5bd;
+        cursor: not-allowed;
+      }
+
+      .dynamic-content {
+        padding: 1.5rem;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        margin-top: 2rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Практика filter() с встроенными локаторами</h1>
+        <p>Тренировка комбинации filter() с getByRole, getByText и другими</p>
+      </header>
+
+      <main>
+        <!-- Секция 1: Фильтрация кнопок -->
+        <section class="section" aria-labelledby="buttons-section">
+          <h2 id="buttons-section">Фильтрация кнопок</h2>
+          <button>Обычная кнопка</button>
+          <button disabled>Неактивная кнопка</button>
+          <button aria-pressed="true">Нажатая кнопка</button>
+          <div role="button" tabindex="0">Div как кнопка</div>
+        </section>
+
+        <!-- Секция 2: Фильтрация форм -->
+        <section class="section" aria-labelledby="forms-section">
+          <h2 id="forms-section">Фильтрация форм</h2>
+          <form>
+            <label for="email1">Email 1</label>
+            <input type="email" id="email1" placeholder="email1@example.com" />
+
+            <label for="email2">Email 2</label>
+            <input type="email" id="email2" placeholder="email2@example.com" disabled />
+          </form>
+        </section>
+
+        <!-- Секция 3: Фильтрация по тексту -->
+        <section class="section" aria-labelledby="text-section">
+          <h2 id="text-section">Фильтрация по тексту</h2>
+          <p>Первый параграф с <span>особым текстом</span></p>
+          <p>Второй параграф с <span>другим текстом</span></p>
+          <div data-testid="special-text">Уникальный текст</div>
+        </section>
+
+        <!-- Секция 4: Динамический контент -->
+        <section class="section" aria-labelledby="dynamic-section">
+          <h2 id="dynamic-section">Динамический контент</h2>
+          <div id="dynamic-content" class="dynamic-content">
+            <p>Элементы появятся здесь через 1 секунду...</p>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      // Добавляем динамические элементы через 1 секунду
+      setTimeout(() => {
+        document.getElementById('dynamic-content').innerHTML = `
+                <button aria-pressed="false">Новая кнопка</button>
+                <p title="динамический текст">Динамически добавленный текст</p>
+            `;
+      }, 1000);
+    </script>
+  </body>
+</html>

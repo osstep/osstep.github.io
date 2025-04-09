@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Практика toHaveClass</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .box {
+        width: 100px;
+        height: 100px;
+        margin: 10px;
+        display: inline-block;
+        transition: all 0.3s;
+      }
+      .active {
+        background-color: #4caf50;
+        border: 2px solid #2e7d32;
+      }
+      .error {
+        background-color: #f44336;
+        border: 2px solid #c62828;
+      }
+      .warning {
+        background-color: #ffc107;
+        border: 2px solid #ffa000;
+      }
+      .hidden {
+        display: none;
+      }
+      .large {
+        width: 150px;
+        height: 150px;
+      }
+      .rounded {
+        border-radius: 50%;
+      }
+      .user-card {
+        border: 1px solid #ddd;
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 5px;
+      }
+      .premium {
+        background-color: #e1f5fe;
+        border-color: #4fc3f7;
+      }
+      .expired {
+        opacity: 0.6;
+        text-decoration: line-through;
+      }
+      button {
+        padding: 8px 15px;
+        margin: 5px;
+        background-color: #2196f3;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Практика проверки классов</h1>
+
+    <!-- Блок 1: Простые элементы с классами -->
+    <div>
+      <h2>Управление классами элементов</h2>
+      <div id="box1" class="box active"></div>
+      <div id="box2" class="box error"></div>
+      <div id="box3" class="box hidden"></div>
+
+      <button id="toggle-box1">Переключить box1</button>
+      <button id="toggle-box3">Показать/скрыть box3</button>
+      <button id="transform-box2">Преобразовать box2</button>
+    </div>
+
+    <!-- Блок 2: Карточка пользователя -->
+    <div>
+      <h2>Карточка пользователя</h2>
+      <div id="user-card" class="user-card">
+        <h3>Иван Петров</h3>
+        <p>Статус: <span id="user-status">Стандартный</span></p>
+        <button id="upgrade-user">Перейти на Премиум</button>
+        <button id="expire-user">Отметить как просроченный</button>
+      </div>
+    </div>
+
+    <!-- Блок 3: Элементы с множеством классов -->
+    <div>
+      <h2>Элементы с несколькими классами</h2>
+      <div id="multi-class" class="box warning large rounded"></div>
+      <button id="modify-classes">Изменить классы</button>
+    </div>
+
+    <script>
+      // Логика для блоков
+      document.getElementById('toggle-box1').addEventListener('click', function () {
+        const box = document.getElementById('box1');
+        box.classList.toggle('active');
+        box.classList.toggle('error');
+      });
+
+      document.getElementById('toggle-box3').addEventListener('click', function () {
+        document.getElementById('box3').classList.toggle('hidden');
+      });
+
+      document.getElementById('transform-box2').addEventListener('click', function () {
+        const box = document.getElementById('box2');
+        box.classList.toggle('large');
+        box.classList.toggle('rounded');
+      });
+
+      // Логика для карточки пользователя
+      document.getElementById('upgrade-user').addEventListener('click', function () {
+        document.getElementById('user-card').classList.toggle('premium');
+        const status = document.getElementById('user-status');
+        status.textContent = status.textContent === 'Стандартный' ? 'Премиум' : 'Стандартный';
+      });
+
+      document.getElementById('expire-user').addEventListener('click', function () {
+        document.getElementById('user-card').classList.toggle('expired');
+      });
+
+      // Логика для элемента с множеством классов
+      document.getElementById('modify-classes').addEventListener('click', function () {
+        const element = document.getElementById('multi-class');
+        element.classList.toggle('warning');
+        element.classList.toggle('error');
+        element.classList.toggle('large');
+      });
+    </script>
+  </body>
+</html>

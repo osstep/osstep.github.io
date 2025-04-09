@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Практика check() в Playwright</title>
+    <style>
+      :root {
+        --primary: #4361ee;
+        --secondary: #3a0ca3;
+        --light: #f8f9fa;
+        --dark: #212529;
+      }
+
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        color: var(--dark);
+        background-color: var(--light);
+        margin: 0;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .form-section {
+        background: white;
+        border-radius: 8px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e9ecef;
+      }
+
+      .checkbox-group,
+      .radio-group {
+        margin: 1rem 0;
+      }
+
+      .checkbox-label,
+      .radio-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+        cursor: pointer;
+      }
+
+      .tos-container {
+        margin-top: 2rem;
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid #dee2e6;
+        padding: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .dynamic-checkboxes {
+        margin-top: 2rem;
+        padding: 1rem;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+      }
+
+      .status-message {
+        margin-top: 1rem;
+        padding: 0.5rem;
+        border-radius: 4px;
+      }
+
+      .status-message.checked {
+        background-color: #d4edda;
+        color: #155724;
+      }
+
+      .status-message.unchecked {
+        background-color: #f8d7da;
+        color: #721c24;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Практика действия check() в Playwright</h1>
+
+      <!-- Секция 1: Одиночные чекбоксы -->
+      <section class="form-section">
+        <h2>Одиночные чекбоксы</h2>
+        <div class="checkbox-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="newsletter" />
+            Подписаться на рассылку
+          </label>
+          <div id="newsletter-status" class="status-message unchecked">Не подписаны</div>
+        </div>
+
+        <div class="checkbox-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="terms" required />
+            Я принимаю условия соглашения
+          </label>
+        </div>
+      </section>
+
+      <!-- Секция 2: Группы чекбоксов -->
+      <section class="form-section">
+        <h2>Группы чекбоксов</h2>
+        <fieldset>
+          <legend>Выберите интересы:</legend>
+          <div class="checkbox-group">
+            <label class="checkbox-label">
+              <input type="checkbox" name="interests" value="sports" />
+              Спорт
+            </label>
+          </div>
+          <div class="checkbox-group">
+            <label class="checkbox-label">
+              <input type="checkbox" name="interests" value="music" checked />
+              Музыка
+            </label>
+          </div>
+          <div class="checkbox-group">
+            <label class="checkbox-label">
+              <input type="checkbox" name="interests" value="movies" />
+              Кино
+            </label>
+          </div>
+        </fieldset>
+      </section>
+
+      <!-- Секция 3: Радио-кнопки -->
+      <section class="form-section">
+        <h2>Радио-кнопки</h2>
+        <fieldset>
+          <legend>Выберите способ доставки:</legend>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="delivery" value="pickup" />
+              Самовывоз
+            </label>
+          </div>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="delivery" value="courier" checked />
+              Курьерская доставка
+            </label>
+          </div>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="delivery" value="post" />
+              Почта России
+            </label>
+          </div>
+        </fieldset>
+        <div id="delivery-status" class="status-message">Выбрано: Курьерская доставка</div>
+      </section>
+
+      <!-- Секция 4: Кастомные чекбоксы -->
+      <section class="form-section">
+        <h2>Кастомные элементы</h2>
+        <div class="tos-container">
+          <h3>Условия использования сервиса</h3>
+          <p>Здесь очень длинный текст условий...</p>
+        </div>
+        <div class="checkbox-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="agree-tos" />
+            Я прочитал и согласен с условиями
+          </label>
+        </div>
+      </section>
+
+      <!-- Секция 5: Динамические чекбоксы -->
+      <section class="form-section">
+        <h2>Динамически добавляемые чекбоксы</h2>
+        <div id="dynamic-checkboxes" class="dynamic-checkboxes">
+          <p>Чекбоксы появятся здесь через 1 секунду...</p>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      // Обработка изменения состояния чекбокса рассылки
+      document.getElementById('newsletter').addEventListener('change', function () {
+        const status = document.getElementById('newsletter-status');
+        if (this.checked) {
+          status.textContent = 'Подписаны';
+          status.classList.remove('unchecked');
+          status.classList.add('checked');
+        } else {
+          status.textContent = 'Не подписаны';
+          status.classList.remove('checked');
+          status.classList.add('unchecked');
+        }
+      });
+
+      // Обработка радио-кнопок доставки
+      document.querySelectorAll('input[name="delivery"]').forEach((radio) => {
+        radio.addEventListener('change', function () {
+          if (this.checked) {
+            document.getElementById(
+              'delivery-status',
+            ).textContent = `Выбрано: ${this.parentElement.textContent.trim()}`;
+          }
+        });
+      });
+
+      // Динамическое добавление чекбоксов
+      setTimeout(() => {
+        document.getElementById('dynamic-checkboxes').innerHTML = `
+                <div class="checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="dynamic-checkbox-1">
+                        Динамический чекбокс 1
+                    </label>
+                </div>
+                <div class="checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="dynamic-checkbox-2" checked>
+                        Динамический чекбокс 2 (по умолчанию включен)
+                    </label>
+                </div>
+            `;
+      }, 1000);
+    </script>
+  </body>
+</html>

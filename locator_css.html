@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Практика CSS-локаторов в Playwright</title>
+    <style>
+      :root {
+        --primary: #4361ee;
+        --secondary: #3a0ca3;
+        --light: #f8f9fa;
+        --dark: #212529;
+      }
+
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        color: var(--dark);
+        background-color: var(--light);
+        margin: 0;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .section {
+        background: white;
+        border-radius: 8px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e9ecef;
+      }
+
+      h1,
+      h2 {
+        color: var(--primary);
+      }
+
+      .product-card {
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 1rem;
+        margin: 1rem 0;
+      }
+
+      .product-card.featured {
+        border-color: var(--primary);
+        background-color: #f0f7ff;
+      }
+
+      .product-card.sold-out {
+        opacity: 0.7;
+        position: relative;
+      }
+
+      .product-card.sold-out::after {
+        content: 'Нет в наличии';
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background-color: #ef233c;
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+      }
+
+      .btn {
+        padding: 0.5rem 1rem;
+        background-color: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: 0.5rem;
+      }
+
+      .btn.disabled {
+        background-color: #adb5bd;
+        cursor: not-allowed;
+      }
+
+      #user-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0;
+      }
+
+      #user-table th,
+      #user-table td {
+        padding: 0.75rem;
+        border: 1px solid #dee2e6;
+        text-align: left;
+      }
+
+      #user-table tr:nth-child(even) {
+        background-color: #f8f9fa;
+      }
+
+      .status-active {
+        color: green;
+      }
+
+      .status-inactive {
+        color: red;
+      }
+
+      .dynamic-content {
+        padding: 1.5rem;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        margin-top: 2rem;
+      }
+
+      form > div {
+        margin-bottom: 1rem;
+      }
+
+      input[type='text'],
+      input[type='email'] {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header id="main-header">
+        <h1 class="title">Практика CSS-локаторов</h1>
+        <p class="subtitle">Тренировка работы с CSS-селекторами в Playwright</p>
+      </header>
+
+      <main>
+        <!-- Секция 1: Базовые CSS-селекторы -->
+        <section class="section" id="basic-selectors">
+          <h2>Базовые селекторы</h2>
+          <div class="product-card">
+            <h3 class="product-name">Ноутбук Pro</h3>
+            <p class="product-price">Цена: <span class="price-value">99 999</span> ₽</p>
+            <button class="btn">В корзину</button>
+          </div>
+
+          <div class="product-card featured">
+            <h3 class="product-name">Смартфон X</h3>
+            <p class="product-price">Цена: <span class="price-value">49 999</span> ₽</p>
+            <button class="btn">В корзину</button>
+          </div>
+        </section>
+
+        <!-- Секция 2: Комбинаторы -->
+        <section class="section" id="combinators">
+          <h2>Комбинаторы</h2>
+          <form id="registration-form">
+            <div>
+              <label for="username">Имя пользователя</label>
+              <input type="text" id="username" class="form-input" />
+            </div>
+            <div>
+              <label for="email">Email</label>
+              <input type="email" id="email" class="form-input" />
+            </div>
+            <button type="submit" class="btn submit-btn">Зарегистрироваться</button>
+          </form>
+        </section>
+
+        <!-- Секция 3: Псевдоклассы и атрибуты -->
+        <section class="section" id="pseudo-classes">
+          <h2>Псевдоклассы и атрибуты</h2>
+          <table id="user-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Имя</th>
+                <th>Email</th>
+                <th>Статус</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>Иван Иванов</td>
+                <td>ivan@example.com</td>
+                <td class="status-active">Активен</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>Петр Петров</td>
+                <td>petr@example.com</td>
+                <td class="status-inactive">Неактивен</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- Секция 4: Динамический контент -->
+        <section class="section" id="dynamic-content-section">
+          <h2>Динамический контент</h2>
+          <div id="dynamic-content" class="dynamic-content">
+            <p>Элементы появятся здесь через 1 секунду...</p>
+          </div>
+        </section>
+      </main>
+
+      <footer id="main-footer">
+        <p class="copyright">&copy; 2023 Практика CSS-локаторов</p>
+      </footer>
+    </div>
+
+    <script>
+      // Добавляем динамические элементы через 1 секунду
+      setTimeout(() => {
+        document.getElementById('dynamic-content').innerHTML = `
+                <div class="product-card">
+                    <h3 class="product-name">Новый товар</h3>
+                    <p class="product-price">Цена: <span class="price-value">9 999</span> ₽</p>
+                    <button class="btn">В корзину</button>
+                </div>
+                <button class="btn disabled">Недоступно</button>
+            `;
+      }, 1000);
+    </script>
+  </body>
+</html>

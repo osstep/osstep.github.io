@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>toContainText Practice</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        line-height: 1.6;
+      }
+      .text-container {
+        margin: 20px 0;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+      button {
+        padding: 8px 15px;
+        margin-right: 10px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .dynamic-content {
+        margin-top: 20px;
+        min-height: 50px;
+        padding: 10px;
+        background-color: #f9f9f9;
+      }
+      .list-container {
+        margin-top: 20px;
+      }
+      .list-item {
+        padding: 8px;
+        margin: 5px 0;
+        background-color: #f0f0f0;
+      }
+      .hidden-text {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Practice toContainText()</h1>
+
+    <!-- Блок 1: Статический текст -->
+    <div class="text-container" id="static-text">
+      This is a static text block that contains important information about testing.
+    </div>
+
+    <!-- Блок 2: Динамически изменяемый текст -->
+    <div class="text-container">
+      <div id="dynamic-text">Initial dynamic text</div>
+      <button id="change-text">Change Text</button>
+      <button id="add-part">Add Part</button>
+    </div>
+
+    <!-- Блок 3: Список элементов -->
+    <div class="list-container">
+      <h3>Item List</h3>
+      <div id="item-list">
+        <div class="list-item">Item 1: Basic</div>
+        <div class="list-item">Item 2: Intermediate</div>
+        <div class="list-item">Item 3: Advanced</div>
+      </div>
+      <button id="add-item">Add Item</button>
+    </div>
+
+    <!-- Блок 4: Скрытый/отображаемый текст -->
+    <div class="text-container">
+      <button id="toggle-text">Show Hidden Text</button>
+      <div id="hidden-content" class="hidden-text">
+        This text was hidden but now is visible! It contains special content.
+      </div>
+    </div>
+
+    <!-- Блок 5: Частичное совпадение -->
+    <div class="text-container">
+      <div id="partial-text">
+        The quick brown fox jumps over the lazy dog. This sentence contains all letters of the
+        English alphabet.
+      </div>
+    </div>
+
+    <script>
+      // Обработчики для динамического изменения контента
+      document.getElementById('change-text').addEventListener('click', function () {
+        document.getElementById('dynamic-text').textContent =
+          'Text was changed at: ' + new Date().toLocaleTimeString();
+      });
+
+      document.getElementById('add-part').addEventListener('click', function () {
+        const el = document.getElementById('dynamic-text');
+        el.textContent += ' (additional part)';
+      });
+
+      document.getElementById('add-item').addEventListener('click', function () {
+        const list = document.getElementById('item-list');
+        const count = list.children.length + 1;
+        const newItem = document.createElement('div');
+        newItem.className = 'list-item';
+        newItem.textContent = `Item ${count}: New added item`;
+        list.appendChild(newItem);
+      });
+
+      document.getElementById('toggle-text').addEventListener('click', function () {
+        const el = document.getElementById('hidden-content');
+        el.classList.toggle('hidden-text');
+      });
+    </script>
+  </body>
+</html>
