@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Практика page.evaluate()</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .counter {
+        font-size: 24px;
+        margin: 20px 0;
+        padding: 10px;
+        background-color: #f0f0f0;
+        border-radius: 5px;
+      }
+      button {
+        padding: 8px 15px;
+        margin: 5px;
+        background-color: #4285f4;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .hidden {
+        display: none;
+      }
+      #dynamic-content {
+        margin: 20px 0;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+      .user-card {
+        border: 1px solid #ddd;
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Практика работы с page.evaluate()</h1>
+
+    <div class="counter-container">
+      <h2>Счётчик: <span id="counter">0</span></h2>
+      <button id="increment">Увеличить</button>
+      <button id="reset">Сбросить</button>
+    </div>
+
+    <div id="dynamic-content">
+      <p>Исходное содержимое</p>
+    </div>
+
+    <div class="user-section">
+      <button id="create-user">Создать пользователя</button>
+      <div id="user-container"></div>
+    </div>
+
+    <div class="browser-info">
+      <h3>Информация о браузере:</h3>
+      <div id="browser-data"></div>
+    </div>
+
+    <script>
+      // Логика счётчика
+      let count = 0;
+      const counterEl = document.getElementById('counter');
+
+      document.getElementById('increment').addEventListener('click', () => {
+        count++;
+        counterEl.textContent = count;
+      });
+
+      document.getElementById('reset').addEventListener('click', () => {
+        count = 0;
+        counterEl.textContent = count;
+      });
+
+      // Логика создания пользователя
+      document.getElementById('create-user').addEventListener('click', () => {
+        const userContainer = document.getElementById('user-container');
+        const userCard = document.createElement('div');
+        userCard.className = 'user-card';
+        userCard.innerHTML = `
+                <h3>Пользователь #${Math.floor(Math.random() * 1000)}</h3>
+                <p>Дата создания: ${new Date().toLocaleString()}</p>
+            `;
+        userContainer.appendChild(userCard);
+      });
+
+      // Заполнение информации о браузере
+      function updateBrowserInfo() {
+        const browserData = document.getElementById('browser-data');
+        browserData.innerHTML = `
+                <p>User Agent: ${navigator.userAgent}</p>
+                <p>Платформа: ${navigator.platform}</p>
+                <p>Ширина экрана: ${screen.width}px</p>
+                <p>Высота экрана: ${screen.height}px</p>
+            `;
+      }
+      updateBrowserInfo();
+    </script>
+  </body>
+</html>

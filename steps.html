@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Практика test.step</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .auth-form {
+        border: 1px solid #ddd;
+        padding: 20px;
+        border-radius: 8px;
+        margin-top: 20px;
+      }
+      input {
+        display: block;
+        margin: 10px 0;
+        padding: 8px;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      button {
+        padding: 8px 15px;
+        background-color: #4285f4;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .hidden {
+        display: none;
+      }
+      .error {
+        color: red;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Практика многошаговых тестов</h1>
+
+    <div class="auth-form">
+      <h2>Форма регистрации</h2>
+      <input type="text" id="username" placeholder="Имя пользователя" />
+      <input type="email" id="email" placeholder="Email" />
+      <input type="password" id="password" placeholder="Пароль" />
+      <button id="register-btn">Зарегистрироваться</button>
+      <p id="error-message" class="hidden error"></p>
+      <div id="success-message" class="hidden">
+        <h3>Регистрация завершена!</h3>
+        <p>Добро пожаловать, <span id="welcome-user"></span></p>
+      </div>
+    </div>
+
+    <div class="profile-section hidden">
+      <h2>Профиль пользователя</h2>
+      <div class="profile-info">
+        <p>Имя: <span id="profile-username"></span></p>
+        <p>Email: <span id="profile-email"></span></p>
+      </div>
+      <button id="logout-btn">Выйти</button>
+    </div>
+
+    <script>
+      document.getElementById('register-btn').addEventListener('click', function () {
+        const username = document.getElementById('username').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const errorEl = document.getElementById('error-message');
+
+        // Валидация
+        if (!username || !email || !password) {
+          errorEl.textContent = 'Все поля обязательны для заполнения';
+          errorEl.classList.remove('hidden');
+          return;
+        }
+
+        if (password.length < 6) {
+          errorEl.textContent = 'Пароль должен быть не менее 6 символов';
+          errorEl.classList.remove('hidden');
+          return;
+        }
+
+        // Успешная регистрация
+        errorEl.classList.add('hidden');
+        document.getElementById('auth-form').classList.add('hidden');
+        document.getElementById('welcome-user').textContent = username;
+        document.getElementById('success-message').classList.remove('hidden');
+
+        // Заполняем профиль
+        document.getElementById('profile-username').textContent = username;
+        document.getElementById('profile-email').textContent = email;
+        document.querySelector('.profile-section').classList.remove('hidden');
+      });
+
+      document.getElementById('logout-btn').addEventListener('click', function () {
+        // Сброс формы
+        document.getElementById('username').value = '';
+        document.getElementById('email').value = '';
+        document.getElementById('password').value = '';
+
+        // Показываем форму, скрываем профиль
+        document.getElementById('success-message').classList.add('hidden');
+        document.querySelector('.profile-section').classList.add('hidden');
+        document.getElementById('auth-form').classList.remove('hidden');
+      });
+    </script>
+  </body>
+</html>

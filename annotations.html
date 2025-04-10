@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Практика аннотаций</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .payment-form {
+        border: 1px solid #ddd;
+        padding: 20px;
+        border-radius: 8px;
+        margin-top: 20px;
+      }
+      .slow-loading {
+        transition: opacity 3s;
+      }
+      .hidden {
+        display: none;
+      }
+      button {
+        padding: 8px 15px;
+        background-color: #4285f4;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Практика аннотаций тестов</h1>
+
+    <!-- Блок для теста @slow -->
+    <div id="slow-section" class="slow-loading">
+      <h2>Медленно загружаемый раздел</h2>
+      <p>Этот контент появляется через 3 секунды</p>
+    </div>
+
+    <!-- Блок для теста @skip и @fixme -->
+    <div class="payment-form">
+      <h2>Форма оплаты</h2>
+      <button id="payment-button" disabled>Оплатить</button>
+      <p id="payment-status">Форма не готова</p>
+    </div>
+
+    <!-- Блок для теста @fail -->
+    <div id="unstable-feature">
+      <h2>Нестабильная функция</h2>
+      <button id="unstable-button">Активировать</button>
+      <div id="unstable-result" class="hidden">Успешно!</div>
+    </div>
+
+    <!-- Блок для теста @only -->
+    <div id="new-feature">
+      <h2>Новая функция (в разработке)</h2>
+      <button id="new-button">Попробовать</button>
+    </div>
+
+    <script>
+      // Имитация медленной загрузки
+      setTimeout(() => {
+        document.getElementById('slow-section').style.opacity = '1';
+      }, 3000);
+
+      // Нестабильная функция
+      document.getElementById('unstable-button').addEventListener('click', function () {
+        if (Math.random() > 0.5) {
+          document.getElementById('unstable-result').classList.remove('hidden');
+        }
+      });
+
+      // Новая функция
+      document.getElementById('new-button').addEventListener('click', function () {
+        alert('Функция в разработке!');
+      });
+    </script>
+  </body>
+</html>
