@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Modern Login</title>
+    <style>
+      :root {
+        --primary: #4361ee;
+        --error: #f72585;
+        --background: #f8f9fa;
+      }
+
+      * {
+        box-sizing: border-box;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        background: var(--background);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        background-image: radial-gradient(circle at 10% 20%, #e6f3ff 0%, #f8f9fa 90%);
+      }
+
+      .login-container {
+        width: 100%;
+        max-width: 420px;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        padding: 40px;
+        transform: translateY(0);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        overflow: hidden;
+      }
+
+      .login-container:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+      }
+
+      h1 {
+        color: var(--primary);
+        text-align: center;
+        margin-bottom: 30px;
+        font-weight: 600;
+        font-size: 28px;
+      }
+
+      .input-group {
+        margin-bottom: 20px;
+        position: relative;
+      }
+
+      input {
+        width: 100%;
+        padding: 14px 16px;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+      }
+
+      input:focus {
+        border-color: var(--primary);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+      }
+
+      button {
+        width: 100%;
+        padding: 14px;
+        background-color: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      button:hover {
+        background-color: #3a56d4;
+        transform: translateY(-2px);
+      }
+
+      button:active {
+        transform: translateY(0);
+      }
+
+      .error-message {
+        color: var(--error);
+        margin-top: 8px;
+        font-size: 14px;
+        height: 20px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .error-message.visible {
+        opacity: 1;
+      }
+
+      .decoration {
+        position: absolute;
+        width: 200px;
+        height: 200px;
+        background: radial-gradient(circle, rgba(67, 97, 238, 0.1) 0%, rgba(67, 97, 238, 0) 70%);
+        border-radius: 50%;
+      }
+
+      .decoration-1 {
+        top: -50px;
+        right: -50px;
+      }
+
+      .decoration-2 {
+        bottom: -80px;
+        left: -60px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-container">
+      <div class="decoration decoration-1"></div>
+      <div class="decoration decoration-2"></div>
+
+      <h1>Welcome Back</h1>
+
+      <div class="input-group">
+        <input type="text" id="username" placeholder="Enter your username" />
+      </div>
+
+      <div class="input-group">
+        <input type="password" id="password" placeholder="Enter your password" />
+      </div>
+
+      <div id="error-message" class="error-message"></div>
+
+      <button id="login-btn">Sign In</button>
+    </div>
+
+    <script>
+      document.getElementById('login-btn').addEventListener('click', () => {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const errorEl = document.getElementById('error-message');
+
+        errorEl.textContent = '';
+        errorEl.classList.remove('visible');
+
+        if (username === 'admin' && password === 'admin123') {
+          localStorage.setItem('auth', 'true');
+          window.location.href = 'fixture_dashboard.html';
+        } else {
+          errorEl.textContent = 'Invalid username or password';
+          errorEl.classList.add('visible');
+        }
+      });
+    </script>
+  </body>
+</html>

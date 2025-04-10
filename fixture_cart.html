@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Shopping Cart</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <style>
+      :root {
+        --primary: #6200ee;
+        --surface: #ffffff;
+        --background: #f5f5f5;
+        --error: #b00020;
+      }
+
+      * {
+        box-sizing: border-box;
+        font-family: 'Roboto', sans-serif;
+      }
+
+      body {
+        background: var(--background);
+        margin: 0;
+        padding: 0;
+        color: #212121;
+      }
+
+      .app-bar {
+        background-color: var(--primary);
+        color: white;
+        padding: 16px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        display: flex;
+        align-items: center;
+      }
+
+      .app-bar h1 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 500;
+        flex-grow: 1;
+      }
+
+      .cart-container {
+        max-width: 800px;
+        margin: 24px auto;
+        padding: 16px;
+      }
+
+      .cart-item {
+        background: var(--surface);
+        border-radius: 4px;
+        margin-bottom: 16px;
+        padding: 16px;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .cart-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .item-image {
+        width: 64px;
+        height: 64px;
+        background: #e0e0e0;
+        border-radius: 4px;
+        margin-right: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #757575;
+      }
+
+      .item-details {
+        flex-grow: 1;
+      }
+
+      .item-name {
+        font-weight: 500;
+        margin-bottom: 4px;
+      }
+
+      .item-price {
+        color: var(--primary);
+        font-weight: 500;
+      }
+
+      .item-actions {
+        display: flex;
+        align-items: center;
+      }
+
+      .icon-button {
+        background: none;
+        border: none;
+        color: #757575;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 50%;
+        transition: background 0.2s ease;
+      }
+
+      .icon-button:hover {
+        background: rgba(0, 0, 0, 0.1);
+      }
+
+      .empty-cart {
+        text-align: center;
+        padding: 40px 0;
+        color: #757575;
+      }
+
+      .empty-cart .material-icons {
+        font-size: 48px;
+        margin-bottom: 16px;
+        color: #e0e0e0;
+      }
+
+      .checkout-fab {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        background: var(--primary);
+        color: white;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        border: none;
+        box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .checkout-fab:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      .sample-btn {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 10px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: background 0.2s ease;
+      }
+
+      .sample-btn:hover {
+        background: #3700b3;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-bar">
+      <h1>Your Shopping Cart</h1>
+    </div>
+
+    <div class="cart-container">
+      <div id="cart-items">
+        <div class="empty-cart">
+          <span class="material-icons">shopping_cart</span>
+          <p>Your cart is empty</p>
+          <button id="add-sample" class="sample-btn">
+            <span class="material-icons">add</span>
+            Add Sample Items
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <button class="checkout-fab">
+      <span class="material-icons">shopping_bag</span>
+    </button>
+
+    <script>
+      document.getElementById('add-sample').addEventListener('click', () => {
+        const items = [
+          { id: 1, name: 'Wireless Headphones', price: 99.99 },
+          { id: 2, name: 'Smart Watch', price: 199.99 },
+        ];
+        localStorage.setItem('cart', JSON.stringify(items));
+        renderCart();
+      });
+
+      function renderCart() {
+        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        const container = document.getElementById('cart-items');
+
+        if (cart.length === 0) {
+          container.innerHTML = `
+                    <div class="empty-cart">
+                        <span class="material-icons">shopping_cart</span>
+                        <p>Your cart is empty</p>
+                        <button id="add-sample" class="sample-btn">
+                            <span class="material-icons">add</span>
+                            Add Sample Items
+                        </button>
+                    </div>
+                `;
+          document.getElementById('add-sample').addEventListener('click', () => {
+            const items = [
+              { id: 1, name: 'Wireless Headphones', price: 99.99 },
+              { id: 2, name: 'Smart Watch', price: 199.99 },
+            ];
+            localStorage.setItem('cart', JSON.stringify(items));
+            renderCart();
+          });
+          return;
+        }
+
+        container.innerHTML = cart
+          .map(
+            (item) => `
+                <div class="cart-item" data-id="${item.id}">
+                    <div class="item-image">
+                        <span class="material-icons">image</span>
+                    </div>
+                    <div class="item-details">
+                        <div class="item-name">${item.name}</div>
+                        <div class="item-price">$${item.price.toFixed(2)}</div>
+                    </div>
+                    <div class="item-actions">
+                        <button class="icon-button remove-item">
+                            <span class="material-icons">delete</span>
+                        </button>
+                    </div>
+                </div>
+            `,
+          )
+          .join('');
+
+        document.querySelectorAll('.remove-item').forEach((button) => {
+          button.addEventListener('click', function () {
+            const itemId = this.closest('.cart-item').dataset.id;
+            const updatedCart = cart.filter((item) => item.id.toString() !== itemId);
+            localStorage.setItem('cart', JSON.stringify(updatedCart));
+            renderCart();
+          });
+        });
+      }
+
+      renderCart();
+    </script>
+  </body>
+</html>

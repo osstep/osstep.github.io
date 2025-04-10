@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>User Settings Dashboard</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" />
+    <style>
+      :root {
+        --primary: #6d28d9;
+        --primary-light: #8b5cf6;
+        --surface: #ffffff;
+        --background: #f9fafb;
+        --border: #e5e7eb;
+        --text-primary: #111827;
+        --text-secondary: #6b7280;
+        --success: #10b981;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: 'Inter', sans-serif;
+      }
+
+      body {
+        background-color: var(--background);
+        color: var(--text-primary);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        padding: 40px 24px;
+      }
+
+      .settings-container {
+        width: 100%;
+        max-width: 800px;
+        background: var(--surface);
+        border-radius: 16px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+      }
+
+      .settings-header {
+        padding: 24px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .settings-header h1 {
+        font-size: 24px;
+        font-weight: 600;
+        flex-grow: 1;
+      }
+
+      .settings-tabs {
+        display: flex;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .tab {
+        padding: 16px 24px;
+        font-weight: 500;
+        color: var(--text-secondary);
+        cursor: pointer;
+        position: relative;
+        transition: all 0.2s ease;
+      }
+
+      .tab.active {
+        color: var(--primary);
+      }
+
+      .tab.active::after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--primary);
+      }
+
+      .settings-content {
+        padding: 32px;
+      }
+
+      .setting-group {
+        margin-bottom: 32px;
+      }
+
+      .setting-group h2 {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .setting-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 0;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .setting-label {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .setting-label span:first-child {
+        font-weight: 500;
+      }
+
+      .setting-label span:last-child {
+        font-size: 14px;
+        color: var(--text-secondary);
+      }
+
+      .switch {
+        position: relative;
+        display: inline-block;
+        width: 44px;
+        height: 24px;
+      }
+
+      .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #e5e7eb;
+        transition: 0.4s;
+        border-radius: 24px;
+      }
+
+      .slider:before {
+        position: absolute;
+        content: '';
+        height: 20px;
+        width: 20px;
+        left: 2px;
+        bottom: 2px;
+        background-color: white;
+        transition: 0.4s;
+        border-radius: 50%;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      input:checked + .slider {
+        background-color: var(--primary);
+      }
+
+      input:checked + .slider:before {
+        transform: translateX(20px);
+      }
+
+      select {
+        padding: 8px 12px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background-color: var(--surface);
+        min-width: 180px;
+        font-size: 14px;
+        transition: all 0.2s ease;
+      }
+
+      select:focus {
+        outline: none;
+        border-color: var(--primary-light);
+        box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.1);
+      }
+
+      .save-button {
+        background-color: var(--primary);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+        margin-top: 16px;
+      }
+
+      .save-button:hover {
+        background-color: var(--primary-light);
+        transform: translateY(-1px);
+      }
+
+      .save-button:active {
+        transform: translateY(0);
+      }
+
+      .save-status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--success);
+        margin-top: 16px;
+        opacity: 0;
+        height: 0;
+        transition: all 0.3s ease;
+      }
+
+      .save-status.visible {
+        opacity: 1;
+        height: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="settings-container">
+      <div class="settings-header">
+        <span class="material-icons-round" style="color: var(--primary)">settings</span>
+        <h1>Settings</h1>
+      </div>
+
+      <div class="settings-tabs">
+        <div class="tab active">General</div>
+        <div class="tab">Notifications</div>
+        <div class="tab">Privacy</div>
+        <div class="tab">Account</div>
+      </div>
+
+      <div class="settings-content">
+        <form id="settings-form">
+          <div class="setting-group">
+            <h2><span class="material-icons-round">palette</span>Appearance</h2>
+
+            <div class="setting-item">
+              <div class="setting-label">
+                <span>Theme</span>
+                <span>Choose between light and dark mode</span>
+              </div>
+              <select id="theme">
+                <option value="light">Light</option>
+                <option value="dark" selected>Dark</option>
+                <option value="system">System Default</option>
+              </select>
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-label">
+                <span>Accent Color</span>
+                <span>Customize the main color</span>
+              </div>
+              <select id="accent-color">
+                <option value="purple">Purple</option>
+                <option value="blue">Blue</option>
+                <option value="green">Green</option>
+                <option value="red">Red</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="setting-group">
+            <h2><span class="material-icons-round">notifications</span>Notifications</h2>
+
+            <div class="setting-item">
+              <div class="setting-label">
+                <span>Email Notifications</span>
+                <span>Receive updates via email</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="email-notifications" checked />
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-label">
+                <span>Push Notifications</span>
+                <span>Get real-time alerts</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="push-notifications" />
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <button type="submit" class="save-button">
+            <span class="material-icons-round">save</span>
+            Save Changes
+          </button>
+
+          <div id="save-status" class="save-status">
+            <span class="material-icons-round">check_circle</span>
+            <span>Settings saved successfully!</span>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      document.getElementById('settings-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const settings = {
+          theme: document.getElementById('theme').value,
+          accentColor: document.getElementById('accent-color').value,
+          emailNotifications: document.getElementById('email-notifications').checked,
+          pushNotifications: document.getElementById('push-notifications').checked,
+        };
+
+        localStorage.setItem('userSettings', JSON.stringify(settings));
+
+        const statusEl = document.getElementById('save-status');
+        statusEl.classList.add('visible');
+
+        setTimeout(() => {
+          statusEl.classList.remove('visible');
+        }, 3000);
+      });
+    </script>
+  </body>
+</html>
