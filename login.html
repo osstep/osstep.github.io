@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Логин</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 400px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .login-form {
+        border: 1px solid #ddd;
+        padding: 20px;
+        border-radius: 8px;
+      }
+      input {
+        display: block;
+        width: 100%;
+        padding: 8px;
+        margin: 10px 0;
+        box-sizing: border-box;
+      }
+      button {
+        background-color: #4285f4;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .error {
+        color: red;
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Вход в систему</h1>
+    <div class="login-form">
+      <input type="text" id="username" placeholder="Имя пользователя" />
+      <input type="password" id="password" placeholder="Пароль" />
+      <button id="login-btn">Войти</button>
+      <div id="error-message" class="error hidden"></div>
+    </div>
+
+    <script>
+      document.getElementById('login-btn').addEventListener('click', function () {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const errorEl = document.getElementById('error-message');
+
+        errorEl.classList.add('hidden');
+
+        if (!username || !password) {
+          errorEl.textContent = 'Все поля обязательны';
+          errorEl.classList.remove('hidden');
+          return;
+        }
+
+        if (username === 'admin' && password === 'admin123') {
+          window.location.href = 'products.html';
+        } else {
+          errorEl.textContent = 'Неверные учетные данные';
+          errorEl.classList.remove('hidden');
+        }
+      });
+    </script>
+  </body>
+</html>
