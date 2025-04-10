@@ -3,122 +3,128 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Практика filter() с встроенными локаторами</title>
+    <title>Практика filter()</title>
     <style>
-      :root {
-        --primary: #4361ee;
-        --secondary: #3a0ca3;
-        --light: #f8f9fa;
-        --dark: #212529;
-      }
-
       body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        line-height: 1.6;
-        color: var(--dark);
-        background-color: var(--light);
-        margin: 0;
-        padding: 20px;
-      }
-
-      .container {
-        max-width: 1000px;
+        font-family: Arial, sans-serif;
+        max-width: 800px;
         margin: 0 auto;
         padding: 20px;
       }
-
-      .section {
-        background: white;
+      .product-card {
+        border: 1px solid #ddd;
         border-radius: 8px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        border: 1px solid #e9ecef;
+        padding: 15px;
+        margin: 10px 0;
       }
-
-      h1,
-      h2 {
-        color: var(--primary);
+      .in-stock {
+        color: green;
       }
-
+      .out-of-stock {
+        color: red;
+        opacity: 0.7;
+      }
+      .discount {
+        border: 2px solid orange;
+      }
+      .featured {
+        background-color: #f0f7ff;
+      }
       button {
-        padding: 0.5rem 1rem;
-        background-color: var(--primary);
+        padding: 8px 15px;
+        margin: 5px;
+        background-color: #4285f4;
         color: white;
         border: none;
         border-radius: 4px;
         cursor: pointer;
-        margin: 0.5rem 0;
       }
-
-      button[disabled] {
-        background-color: #adb5bd;
-        cursor: not-allowed;
+      .price {
+        font-weight: bold;
+        font-size: 1.2em;
       }
-
-      .dynamic-content {
-        padding: 1.5rem;
-        background-color: #f8f9fa;
-        border-radius: 8px;
-        margin-top: 2rem;
+      .discount-price {
+        color: orange;
       }
     </style>
   </head>
   <body>
-    <div class="container">
-      <header>
-        <h1>Практика filter() с встроенными локаторами</h1>
-        <p>Тренировка комбинации filter() с getByRole, getByText и другими</p>
-      </header>
+    <h1>Практика метода filter() для локаторов</h1>
 
-      <main>
-        <!-- Секция 1: Фильтрация кнопок -->
-        <section class="section" aria-labelledby="buttons-section">
-          <h2 id="buttons-section">Фильтрация кнопок</h2>
-          <button>Обычная кнопка</button>
-          <button disabled>Неактивная кнопка</button>
-          <button aria-pressed="true">Нажатая кнопка</button>
-          <div role="button" tabindex="0">Div как кнопка</div>
-        </section>
+    <div class="product-list">
+      <div class="product-card" data-id="1" data-category="electronics">
+        <h3>Смартфон X10</h3>
+        <p class="price">25 990 ₽</p>
+        <p class="status in-stock">В наличии</p>
+        <button class="buy-btn">Купить</button>
+      </div>
 
-        <!-- Секция 2: Фильтрация форм -->
-        <section class="section" aria-labelledby="forms-section">
-          <h2 id="forms-section">Фильтрация форм</h2>
-          <form>
-            <label for="email1">Email 1</label>
-            <input type="email" id="email1" placeholder="email1@example.com" />
+      <div class="product-card out-of-stock" data-id="2" data-category="electronics">
+        <h3>Ноутбук ProBook</h3>
+        <p class="price">54 990 ₽</p>
+        <p class="status out-of-stock">Нет в наличии</p>
+        <button class="buy-btn" disabled>Купить</button>
+      </div>
 
-            <label for="email2">Email 2</label>
-            <input type="email" id="email2" placeholder="email2@example.com" disabled />
-          </form>
-        </section>
+      <div class="product-card discount featured" data-id="3" data-category="home">
+        <h3>Кофемашина Deluxe</h3>
+        <p class="price discount-price">
+          32 490 ₽
+          <span style="text-decoration: line-through; color: gray; font-size: 0.9em">38 990 ₽</span>
+        </p>
+        <p class="status in-stock">В наличии</p>
+        <button class="buy-btn">Купить</button>
+      </div>
 
-        <!-- Секция 3: Фильтрация по тексту -->
-        <section class="section" aria-labelledby="text-section">
-          <h2 id="text-section">Фильтрация по тексту</h2>
-          <p>Первый параграф с <span>особым текстом</span></p>
-          <p>Второй параграф с <span>другим текстом</span></p>
-          <div data-testid="special-text">Уникальный текст</div>
-        </section>
+      <div class="product-card" data-id="4" data-category="clothing">
+        <h3>Футболка Premium</h3>
+        <p class="price">1 990 ₽</p>
+        <p class="status in-stock">В наличии</p>
+        <button class="buy-btn">Купить</button>
+      </div>
 
-        <!-- Секция 4: Динамический контент -->
-        <section class="section" aria-labelledby="dynamic-section">
-          <h2 id="dynamic-section">Динамический контент</h2>
-          <div id="dynamic-content" class="dynamic-content">
-            <p>Элементы появятся здесь через 1 секунду...</p>
-          </div>
-        </section>
-      </main>
+      <div class="product-card discount" data-id="5" data-category="electronics">
+        <h3>Наушники Ultra</h3>
+        <p class="price discount-price">
+          7 490 ₽
+          <span style="text-decoration: line-through; color: gray; font-size: 0.9em">9 990 ₽</span>
+        </p>
+        <p class="status in-stock">В наличии</p>
+        <button class="buy-btn">Купить</button>
+      </div>
+    </div>
+
+    <div class="filters">
+      <button id="show-electronics">Показать электронику</button>
+      <button id="show-discounts">Показать со скидкой</button>
+      <button id="show-featured">Показать рекомендуемые</button>
+      <button id="show-all">Показать все</button>
     </div>
 
     <script>
-      // Добавляем динамические элементы через 1 секунду
-      setTimeout(() => {
-        document.getElementById('dynamic-content').innerHTML = `
-                <button aria-pressed="false">Новая кнопка</button>
-                <p title="динамический текст">Динамически добавленный текст</p>
-            `;
-      }, 1000);
+      document.getElementById('show-electronics').addEventListener('click', function () {
+        document.querySelectorAll('.product-card').forEach((card) => {
+          card.style.display = card.dataset.category === 'electronics' ? 'block' : 'none';
+        });
+      });
+
+      document.getElementById('show-discounts').addEventListener('click', function () {
+        document.querySelectorAll('.product-card').forEach((card) => {
+          card.style.display = card.classList.contains('discount') ? 'block' : 'none';
+        });
+      });
+
+      document.getElementById('show-featured').addEventListener('click', function () {
+        document.querySelectorAll('.product-card').forEach((card) => {
+          card.style.display = card.classList.contains('featured') ? 'block' : 'none';
+        });
+      });
+
+      document.getElementById('show-all').addEventListener('click', function () {
+        document.querySelectorAll('.product-card').forEach((card) => {
+          card.style.display = 'block';
+        });
+      });
     </script>
   </body>
 </html>
