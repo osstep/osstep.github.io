@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Практика test.step</title>
+    <title>Практика тестовых шагов</title>
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -38,25 +38,34 @@
       .error {
         color: red;
       }
+      .success {
+        color: green;
+      }
+      .profile-section {
+        margin-top: 20px;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
     </style>
   </head>
   <body>
-    <h1>Практика многошаговых тестов</h1>
+    <h1>Практика тестовых шагов</h1>
 
-    <div class="auth-form">
+    <div class="auth-form" id="auth-form">
       <h2>Форма регистрации</h2>
       <input type="text" id="username" placeholder="Имя пользователя" />
       <input type="email" id="email" placeholder="Email" />
       <input type="password" id="password" placeholder="Пароль" />
       <button id="register-btn">Зарегистрироваться</button>
       <p id="error-message" class="hidden error"></p>
-      <div id="success-message" class="hidden">
+      <div id="success-message" class="hidden success">
         <h3>Регистрация завершена!</h3>
         <p>Добро пожаловать, <span id="welcome-user"></span></p>
       </div>
     </div>
 
-    <div class="profile-section hidden">
+    <div class="profile-section hidden" id="profile-section">
       <h2>Профиль пользователя</h2>
       <div class="profile-info">
         <p>Имя: <span id="profile-username"></span></p>
@@ -71,6 +80,13 @@
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
         const errorEl = document.getElementById('error-message');
+        const successEl = document.getElementById('success-message');
+        const authForm = document.getElementById('auth-form');
+        const profileSection = document.getElementById('profile-section');
+
+        // Скрываем сообщения
+        errorEl.classList.add('hidden');
+        successEl.classList.add('hidden');
 
         // Валидация
         if (!username || !email || !password) {
@@ -86,15 +102,12 @@
         }
 
         // Успешная регистрация
-        errorEl.classList.add('hidden');
-        document.getElementById('auth-form').classList.add('hidden');
         document.getElementById('welcome-user').textContent = username;
-        document.getElementById('success-message').classList.remove('hidden');
-
-        // Заполняем профиль
         document.getElementById('profile-username').textContent = username;
         document.getElementById('profile-email').textContent = email;
-        document.querySelector('.profile-section').classList.remove('hidden');
+
+        successEl.classList.remove('hidden');
+        profileSection.classList.remove('hidden');
       });
 
       document.getElementById('logout-btn').addEventListener('click', function () {
@@ -102,11 +115,11 @@
         document.getElementById('username').value = '';
         document.getElementById('email').value = '';
         document.getElementById('password').value = '';
+        document.getElementById('error-message').classList.add('hidden');
 
-        // Показываем форму, скрываем профиль
+        // Скрываем профиль, показываем форму
         document.getElementById('success-message').classList.add('hidden');
-        document.querySelector('.profile-section').classList.add('hidden');
-        document.getElementById('auth-form').classList.remove('hidden');
+        document.getElementById('profile-section').classList.add('hidden');
       });
     </script>
   </body>
