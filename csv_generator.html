@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Генератор CSV</title>
+  </head>
+  <body>
+    <h1>Генератор CSV из JSON</h1>
+    <textarea id="jsonInput" rows="15" cols="100" placeholder="Вставьте JSON сюда"></textarea
+    ><br /><br />
+    <button onclick="generateCSV()">Сгенерировать CSV</button>
+
+    <script>
+      const headers = [
+        'allure_id',
+        'name',
+        'full_name',
+        'automated',
+        'description',
+        'precondition',
+        'expected_result',
+        'status',
+        'scenario',
+        'tag',
+        'link',
+        'example',
+      ];
+
+      function generateCSV() {
+        let data;
+        try {
+          const input = document.getElementById('jsonInput').value;
+          data = JSON.parse(input);
+        } catch (e) {
+          alert('Возникла ошибка: неверный формат данных');
+          return;
+        }
+
+        const rows = [headers];
+
+        data.forEach((item) => {
+          const row = headers.map((header) => {
+            if (header === 'name') return item.name || '';
+            if (header === 'description') return item.description || '';
+            if (header === 'scenario') return item.scenario || '';
+            return '';
+          });
+          rows.push(row);
+        });
+
+        const csvContent = rows
+          .map((row) => row.map((field) => `"${(field + '').replace(/"/g, '""')}"`).join(';'))
+          .join('\n');
+
+        downloadCSV(csvContent, 'example.csv');
+      }
+
+      function downloadCSV(content, filename) {
+        const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        if (link.download !== undefined) {
+          const url = URL.createObjectURL(blob);
+          link.setAttribute('href', url);
+          link.setAttribute('download', filename);
+          link.style.visibility = 'hidden';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
+      }
+    </script>
+  </body>
+</html>
