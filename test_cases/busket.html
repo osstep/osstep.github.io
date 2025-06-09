@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Корзина покупок</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f9;
+      }
+      .container {
+        width: 80%;
+        margin: 20px auto;
+        text-align: center;
+      }
+      h1 {
+        color: #333;
+      }
+      .cart-items {
+        width: 100%;
+        margin-top: 30px;
+        border-collapse: collapse;
+        width: 100%;
+      }
+      .cart-items th,
+      .cart-items td {
+        padding: 10px;
+        border: 1px solid #ddd;
+      }
+      .cart-items th {
+        background-color: #f2f2f2;
+      }
+      .cart-items td {
+        text-align: center;
+      }
+      .cart-items input {
+        width: 50px;
+        text-align: center;
+      }
+      .cart-items button {
+        background-color: #ff6347;
+        color: white;
+        padding: 5px 10px;
+        border: none;
+        cursor: pointer;
+        border-radius: 4px;
+      }
+      .cart-items button:hover {
+        background-color: #e5533f;
+      }
+      .total {
+        font-size: 18px;
+        margin-top: 20px;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Корзина покупок</h1>
+
+      <!-- Таблица с товарами -->
+      <table class="cart-items">
+        <thead>
+          <tr>
+            <th>Название товара</th>
+            <th>Цена</th>
+            <th>Количество</th>
+            <th>Сумма</th>
+            <th>Действие</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Смартфон</td>
+            <td class="price">5000</td>
+            <td><input type="number" class="quantity" value="1" min="1" /></td>
+            <td class="sum">5000</td>
+            <td><button class="remove">Удалить</button></td>
+          </tr>
+          <tr>
+            <td>Наушники</td>
+            <td class="price">1500</td>
+            <td><input type="number" class="quantity" value="2" min="1" /></td>
+            <td class="sum">3000</td>
+            <td><button class="remove">Удалить</button></td>
+          </tr>
+          <tr>
+            <td>Ноутбук</td>
+            <td class="price">25000</td>
+            <td><input type="number" class="quantity" value="1" min="1" /></td>
+            <td class="sum">25000</td>
+            <td><button class="remove">Удалить</button></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Общая стоимость -->
+      <div class="total">Общая сумма: <span id="total-amount">33000</span> рублей</div>
+    </div>
+
+    <script>
+      const quantities = document.querySelectorAll('.quantity');
+      quantities.forEach((input) => {
+        input.addEventListener('input', function () {
+          const row = input.closest('tr');
+          const price = row.querySelector('.price').innerText;
+          const sum = row.querySelector('.sum');
+          const totalAmount = document.getElementById('total-amount');
+
+          sum.innerText = price * input.value;
+
+          totalAmount.innerText = parseInt(totalAmount.innerText);
+        });
+      });
+
+      const removeButtons = document.querySelectorAll('.remove');
+      removeButtons.forEach((button) => {
+        button.addEventListener('click', function () {
+          const row = button.closest('tr');
+          row.remove();
+        });
+      });
+
+      function addItem() {
+        const newItem = document.createElement('tr');
+        newItem.innerHTML = `
+                <td>Планшет</td>
+                <td class="price">12000</td>
+                <td><input type="number" class="quantity" value="1" min="1"></td>
+                <td class="sum">12000</td>
+                <td><button class="remove">Удалить</button></td>
+            `;
+        document.querySelector('.cart-items tbody').appendChild(newItem);
+      }
+      addItem();
+    </script>
+  </body>
+</html>
