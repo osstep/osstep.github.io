@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Playwright Actions Demo</title>
+    <style>
+      body {
+        font-family:
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          sans-serif;
+        margin: 0;
+        padding: 24px;
+        background: #f5f5f7;
+        color: #111827;
+      }
+
+      h1,
+      h2 {
+        margin-bottom: 12px;
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+      }
+
+      .section {
+        margin-bottom: 32px;
+        border-bottom: 1px solid #e5e7eb;
+        padding-bottom: 24px;
+      }
+
+      .form-row {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        margin-bottom: 16px;
+      }
+
+      label {
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      input[type='text'],
+      input[type='email'],
+      select {
+        padding: 8px 10px;
+        border-radius: 6px;
+        border: 1px solid #d1d5db;
+        font-size: 14px;
+      }
+
+      input[type='checkbox'],
+      input[type='radio'] {
+        margin-right: 6px;
+      }
+
+      .inline {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+
+      .product-card {
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 16px;
+        display: inline-block;
+        margin-right: 16px;
+        background: #f9fafb;
+        cursor: grab;
+      }
+
+      .product-card:hover {
+        box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
+        transform: translateY(-1px);
+        transition: all 0.15s ease-out;
+      }
+
+      .btn {
+        padding: 8px 14px;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        background: #2563eb;
+        color: white;
+        font-size: 14px;
+      }
+
+      .btn-secondary {
+        background: #6b7280;
+      }
+
+      #dropzone {
+        border: 2px dashed #9ca3af;
+        border-radius: 10px;
+        min-height: 80px;
+        padding: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6b7280;
+        background: #f9fafb;
+      }
+
+      #dropzone.drag-over {
+        border-color: #2563eb;
+        background: #eff6ff;
+        color: #1d4ed8;
+      }
+
+      .order-summary {
+        padding: 16px;
+        border-radius: 10px;
+        background: #f9fafb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .order-total {
+        font-size: 18px;
+        font-weight: 700;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Playwright Actions Demo</h1>
+
+      <section class="section" aria-label="Checkout form">
+        <h2>1. Checkout form</h2>
+
+        <div class="form-row">
+          <label for="name">Name</label>
+          <input id="name" type="text" placeholder="John Doe" />
+        </div>
+
+        <div class="form-row">
+          <label for="email">Email</label>
+          <input id="email" type="email" placeholder="john@example.com" />
+        </div>
+
+        <div class="form-row">
+          <label for="country">Country</label>
+          <select id="country" data-testid="country">
+            <option value="">Select country</option>
+            <option value="US">United States</option>
+            <option value="DE">Germany</option>
+            <option value="FR">France</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <div class="inline">
+            <input id="terms" type="checkbox" />
+            <label for="terms">I accept the terms</label>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <span style="font-size: 14px; font-weight: 600">Delivery method</span>
+          <div class="inline">
+            <input id="delivery-standard" type="radio" name="delivery" value="standard" checked />
+            <label for="delivery-standard">Standard delivery</label>
+          </div>
+          <div class="inline">
+            <input id="delivery-express" type="radio" name="delivery" value="express" />
+            <label for="delivery-express">Express delivery</label>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" aria-label="Files and product">
+        <h2>2. Files & product</h2>
+
+        <div class="form-row">
+          <label for="invoice">Invoice file</label>
+          <input id="invoice" type="file" />
+        </div>
+
+        <div style="display: flex; gap: 16px; align-items: flex-start; margin-top: 16px">
+          <article class="product-card" aria-label="Product 1">
+            <h3>Product 1</h3>
+            <p>Awesome item for testing Playwright.</p>
+            <button class="btn" type="button">Add to cart</button>
+          </article>
+
+          <div id="dropzone">Drop product here</div>
+        </div>
+      </section>
+
+      <section class="section" aria-label="Order summary">
+        <h2>3. Order summary</h2>
+        <div class="order-summary">
+          <div>
+            <div>Items in cart: <span id="items-count">0</span></div>
+            <div>Delivery: <span id="delivery-type">Standard</span></div>
+          </div>
+          <div class="order-total" data-testid="order-total">$0.00</div>
+        </div>
+
+        <div style="margin-top: 16px; display: flex; gap: 12px">
+          <button class="btn" id="submit-order" type="button">Submit order</button>
+          <button class="btn btn-secondary" id="reset-form" type="button">Reset</button>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      const addToCartButton = document.querySelector('.product-card .btn');
+      const orderTotal = document.querySelector('[data-testid="order-total"]');
+      const itemsCount = document.getElementById('items-count');
+      const deliveryType = document.getElementById('delivery-type');
+      const dropzone = document.getElementById('dropzone');
+      const productCard = document.querySelector('.product-card');
+      const deliveryStandard = document.getElementById('delivery-standard');
+      const deliveryExpress = document.getElementById('delivery-express');
+      const terms = document.getElementById('terms');
+      const submitOrder = document.getElementById('submit-order');
+      const resetForm = document.getElementById('reset-form');
+      const nameInput = document.getElementById('name');
+      const emailInput = document.getElementById('email');
+      const countrySelect = document.getElementById('country');
+      const invoiceInput = document.getElementById('invoice');
+
+      let items = 0;
+
+      addToCartButton.addEventListener('click', () => {
+        items += 1;
+        itemsCount.textContent = String(items);
+        orderTotal.textContent = '$199.99';
+      });
+
+      deliveryStandard.addEventListener('change', () => {
+        if (deliveryStandard.checked) {
+          deliveryType.textContent = 'Standard';
+        }
+      });
+
+      deliveryExpress.addEventListener('change', () => {
+        if (deliveryExpress.checked) {
+          deliveryType.textContent = 'Express';
+        }
+      });
+
+      productCard.setAttribute('draggable', 'true');
+
+      productCard.addEventListener('dragstart', (event) => {
+        event.dataTransfer.setData('text/plain', 'product-1');
+      });
+
+      dropzone.addEventListener('dragover', (event) => {
+        event.preventDefault();
+        dropzone.classList.add('drag-over');
+      });
+
+      dropzone.addEventListener('dragleave', () => {
+        dropzone.classList.remove('drag-over');
+      });
+
+      dropzone.addEventListener('drop', (event) => {
+        event.preventDefault();
+        const id = event.dataTransfer.getData('text/plain');
+        if (id === 'product-1') {
+          dropzone.textContent = 'Product dropped!';
+          dropzone.classList.remove('drag-over');
+        }
+      });
+
+      submitOrder.addEventListener('click', () => {
+        if (!terms.checked) {
+          alert('Please accept the terms before submitting the order.');
+          return;
+        }
+        alert('Order submitted!');
+      });
+
+      resetForm.addEventListener('click', () => {
+        nameInput.value = '';
+        emailInput.value = '';
+        countrySelect.value = '';
+        terms.checked = false;
+        deliveryStandard.checked = true;
+        deliveryExpress.checked = false;
+        items = 0;
+        itemsCount.textContent = '0';
+        orderTotal.textContent = '$0.00';
+        deliveryType.textContent = 'Standard';
+        dropzone.textContent = 'Drop product here';
+        invoiceInput.value = '';
+      });
+    </script>
+  </body>
+</html>
