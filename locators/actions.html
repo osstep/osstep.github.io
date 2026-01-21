@@ -235,10 +235,14 @@
 
       let items = 0;
 
-      addToCartButton.addEventListener('click', () => {
+      function addItemToCart() {
         items += 1;
         itemsCount.textContent = String(items);
         orderTotal.textContent = '$199.99';
+      }
+
+      addToCartButton.addEventListener('click', () => {
+        addItemToCart();
       });
 
       deliveryStandard.addEventListener('change', () => {
@@ -274,6 +278,7 @@
         if (id === 'product-1') {
           dropzone.textContent = 'Product dropped!';
           dropzone.classList.remove('drag-over');
+          addItemToCart();
         }
       });
 
