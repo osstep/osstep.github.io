@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Assertions demo</title>
+    <style>
+      :root {
+        --bg: #0b1220;
+        --surface: #0f1b33;
+        --card: rgba(255, 255, 255, 0.06);
+        --card-border: rgba(255, 255, 255, 0.12);
+        --text: rgba(255, 255, 255, 0.92);
+        --muted: rgba(255, 255, 255, 0.65);
+        --accent: #7c5cff;
+        --accent-2: #37d67a;
+        --danger: #ff4d6d;
+        --shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+        --radius: 14px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+      }
+
+      body {
+        margin: 0;
+        font-family:
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          Segoe UI,
+          Roboto,
+          Arial,
+          'Apple Color Emoji',
+          'Segoe UI Emoji';
+        color: var(--text);
+        background:
+          radial-gradient(1200px 800px at 20% 10%, rgba(124, 92, 255, 0.22), transparent 60%),
+          radial-gradient(1000px 700px at 85% 20%, rgba(55, 214, 122, 0.12), transparent 60%),
+          radial-gradient(900px 700px at 40% 90%, rgba(255, 77, 109, 0.1), transparent 60%),
+          var(--bg);
+      }
+
+      .container {
+        max-width: 920px;
+        margin: 0 auto;
+        padding: 28px 18px 48px;
+      }
+
+      .header {
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.03));
+        border: 1px solid var(--card-border);
+        border-radius: var(--radius);
+        padding: 18px 18px;
+        box-shadow: var(--shadow);
+        margin-bottom: 14px;
+      }
+
+      h1 {
+        font-size: 28px;
+        line-height: 1.15;
+        margin: 0 0 8px 0;
+        letter-spacing: -0.02em;
+      }
+
+      .subtitle {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+
+      .stack {
+        display: grid;
+        gap: 14px;
+        margin-top: 14px;
+      }
+
+      .card {
+        background: var(--card);
+        border: 1px solid var(--card-border);
+        border-radius: var(--radius);
+        padding: 16px;
+        box-shadow: var(--shadow);
+      }
+
+      .card h2 {
+        font-size: 18px;
+        margin: 0 0 12px 0;
+        letter-spacing: -0.01em;
+      }
+
+      .muted {
+        color: var(--muted);
+      }
+
+      .row {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .field {
+        display: grid;
+        gap: 6px;
+        margin-top: 10px;
+      }
+
+      label {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      input[type='email'],
+      input[type='text'] {
+        width: 100%;
+        max-width: 520px;
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(10, 15, 30, 0.6);
+        color: var(--text);
+        outline: none;
+        transition:
+          border-color 0.15s ease,
+          box-shadow 0.15s ease,
+          transform 0.05s ease;
+      }
+
+      input[type='email']:focus,
+      input[type='text']:focus {
+        border-color: rgba(124, 92, 255, 0.6);
+        box-shadow: 0 0 0 4px rgba(124, 92, 255, 0.18);
+      }
+
+      .checkbox {
+        display: inline-flex;
+        gap: 10px;
+        align-items: center;
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(10, 15, 30, 0.45);
+        width: fit-content;
+      }
+
+      .checkbox input {
+        width: 16px;
+        height: 16px;
+        accent-color: var(--accent);
+      }
+
+      button {
+        appearance: none;
+        border: 0;
+        padding: 10px 12px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text);
+        cursor: pointer;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        transition:
+          transform 0.06s ease,
+          background 0.15s ease,
+          border-color 0.15s ease,
+          box-shadow 0.15s ease;
+      }
+
+      button:hover {
+        background: rgba(255, 255, 255, 0.14);
+        border-color: rgba(255, 255, 255, 0.22);
+      }
+
+      button:active {
+        transform: translateY(1px);
+      }
+
+      button:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(124, 92, 255, 0.18);
+        border-color: rgba(124, 92, 255, 0.6);
+      }
+
+      button.primary {
+        background: linear-gradient(135deg, rgba(124, 92, 255, 0.95), rgba(124, 92, 255, 0.55));
+        border-color: rgba(124, 92, 255, 0.55);
+      }
+
+      button.primary:hover {
+        background: linear-gradient(135deg, rgba(124, 92, 255, 1), rgba(124, 92, 255, 0.65));
+      }
+
+      button:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(10, 15, 30, 0.4);
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .status {
+        font-weight: 700;
+        color: var(--text);
+      }
+
+      ol {
+        margin: 10px 0 0 18px;
+        padding: 0;
+      }
+
+      li {
+        margin: 6px 0;
+      }
+
+      .tabs {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 6px;
+      }
+
+      [role='tab'] {
+        border-radius: 999px;
+        padding: 8px 12px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(10, 15, 30, 0.35);
+      }
+
+      [role='tab'].active {
+        background: rgba(124, 92, 255, 0.22);
+        border-color: rgba(124, 92, 255, 0.5);
+        box-shadow: 0 0 0 4px rgba(124, 92, 255, 0.1);
+      }
+
+      .box {
+        margin-top: 10px;
+        height: 52px;
+        border-radius: 14px;
+        border: 1px dashed rgba(255, 255, 255, 0.22);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #fff;
+        color: #111827;
+        font-weight: 600;
+      }
+
+      a {
+        color: rgba(124, 92, 255, 0.95);
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+
+      dialog {
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        border-radius: 16px;
+        padding: 16px;
+        width: min(520px, 92vw);
+        background: rgba(15, 27, 51, 0.96);
+        color: var(--text);
+        box-shadow: var(--shadow);
+      }
+
+      dialog::backdrop {
+        background: rgba(0, 0, 0, 0.55);
+      }
+
+      .dialog-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 12px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <header class="header">
+        <h1>Assertions demo stand</h1>
+        <p class="subtitle">
+          Demo page for Playwright assertions with stable locators:
+          <span class="muted">getByRole / getByLabel / getByTestId</span>.
+        </p>
+      </header>
+
+      <main class="stack">
+        <section class="card" aria-label="Form section">
+          <h2>Form</h2>
+
+          <div class="field">
+            <label for="emailInput">Email</label>
+            <input id="emailInput" required type="email" placeholder="test@mail.com" />
+          </div>
+
+          <div class="field">
+            <label for="agreeCheckbox" class="checkbox">
+              <input id="agreeCheckbox" type="checkbox" />
+              I agree
+            </label>
+          </div>
+
+          <div class="row" style="margin-top: 12px">
+            <button type="button" id="submitBtn" class="primary" disabled>Submit</button>
+
+            <span class="pill">
+              Status:
+              <span data-testid="status" class="status" aria-live="polite">Idle</span>
+            </span>
+          </div>
+        </section>
+
+        <section class="card" aria-label="Modal section">
+          <h2>Modal</h2>
+          <div class="row">
+            <button type="button" id="openModalBtn">Open modal</button>
+          </div>
+
+          <dialog aria-label="Demo modal">
+            <p style="margin: 0 0 6px 0; font-weight: 800">Modal content</p>
+            <p class="muted" style="margin: 0">
+              This dialog is used for <code>toBeVisible</code>/<code>toBeHidden</code>.
+            </p>
+            <div class="dialog-actions">
+              <button type="button" id="closeModalBtn">Close modal</button>
+            </div>
+          </dialog>
+        </section>
+
+        <section class="card" aria-label="Tabs section">
+          <h2>Tabs (toHaveClass)</h2>
+
+          <div class="tabs" role="tablist" aria-label="Demo tabs">
+            <button type="button" role="tab" aria-selected="true" class="active">Home</button>
+            <button type="button" role="tab" aria-selected="false">Profile</button>
+          </div>
+
+          <div data-testid="tab-panel" class="muted" style="margin-top: 10px">
+            Current tab: Home
+          </div>
+        </section>
+
+        <section class="card" aria-label="List section">
+          <h2>List</h2>
+          <div class="row">
+            <button type="button" id="addItemBtn">Add item</button>
+            <span class="muted">Use <code>toHaveCount</code> on list items.</span>
+          </div>
+
+          <ol data-testid="items" id="items">
+            <li>Item A</li>
+            <li>Item B</li>
+            <li>Item C</li>
+          </ol>
+        </section>
+
+        <section class="card" aria-label="CSS section">
+          <h2>CSS (toHaveCSS)</h2>
+          <div class="row">
+            <button type="button" id="toggleHighlightBtn">Toggle highlight</button>
+            <span class="muted">Background changes between white and yellow.</span>
+          </div>
+
+          <div data-testid="highlight-box" id="highlight-box" class="box">Box</div>
+        </section>
+
+        <section class="card" aria-label="Navigation section">
+          <h2>Navigation (toHaveURL)</h2>
+          <div class="row">
+            <a href="#/dashboard" id="dashboardLink">Go to Dashboard</a>
+            <span class="pill">
+              Current hash:
+              <span id="hashValue" class="status"></span>
+            </span>
+          </div>
+        </section>
+      </main>
+
+      <script>
+        const email = document.getElementById('emailInput');
+        const agree = document.getElementById('agreeCheckbox');
+        const submitBtn = document.getElementById('submitBtn');
+        const status = document.querySelector("[data-testid='status']");
+
+        const dialog = document.querySelector('dialog');
+        const openModalBtn = document.getElementById('openModalBtn');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+
+        const addItemBtn = document.getElementById('addItemBtn');
+        const items = document.getElementById('items');
+
+        const toggleHighlightBtn = document.getElementById('toggleHighlightBtn');
+        const highlightBox = document.getElementById('highlight-box');
+
+        const tabButtons = Array.from(document.querySelectorAll("[role='tab']"));
+        const tabPanel = document.querySelector("[data-testid='tab-panel']");
+
+        const hashValue = document.getElementById('hashValue');
+
+        function updateSubmitState() {
+          submitBtn.disabled = !agree.checked;
+        }
+
+        agree.addEventListener('change', updateSubmitState);
+        updateSubmitState();
+
+        submitBtn.addEventListener('click', () => {
+          status.textContent = 'Submitting...';
+
+          setTimeout(() => {
+            status.textContent = 'Submitted';
+          }, 1200);
+        });
+
+        openModalBtn.addEventListener('click', () => {
+          dialog.showModal();
+        });
+
+        closeModalBtn.addEventListener('click', () => {
+          dialog.close();
+        });
+
+        addItemBtn.addEventListener('click', () => {
+          const li = document.createElement('li');
+          li.textContent = 'Item ' + String.fromCharCode(65 + items.children.length);
+          items.appendChild(li);
+        });
+
+        toggleHighlightBtn.addEventListener('click', () => {
+          const isOn = highlightBox.style.backgroundColor === 'rgb(255, 235, 59)';
+          highlightBox.style.backgroundColor = isOn ? '#fff' : 'rgb(255, 235, 59)';
+        });
+
+        tabButtons.forEach((btn) => {
+          btn.addEventListener('click', () => {
+            tabButtons.forEach((b) => {
+              b.classList.remove('active');
+              b.setAttribute('aria-selected', 'false');
+            });
+
+            btn.classList.add('active');
+            btn.setAttribute('aria-selected', 'true');
+            tabPanel.textContent = 'Current tab: ' + btn.textContent;
+          });
+        });
+
+        function syncHash() {
+          hashValue.textContent = location.hash || '(empty)';
+        }
+        window.addEventListener('hashchange', syncHash);
+        syncHash();
+      </script>
+    </div>
+  </body>
+</html>
