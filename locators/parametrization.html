@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Playwright Test Parametrization Demo</title>
+    <style>
+      body {
+        font-family:
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          sans-serif;
+        margin: 0;
+        padding: 24px;
+        background: #f5f5f7;
+        color: #111827;
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        border-bottom: 1px solid #e5e7eb;
+        padding-bottom: 16px;
+        margin-bottom: 16px;
+      }
+
+      .brand {
+        display: grid;
+        gap: 4px;
+      }
+
+      .brand h1 {
+        font-size: 18px;
+        margin: 0;
+      }
+
+      .brand p {
+        margin: 0;
+        color: #6b7280;
+        font-size: 13px;
+      }
+
+      nav ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      nav a {
+        display: inline-block;
+        padding: 8px 10px;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        text-decoration: none;
+        color: #111827;
+        background: #f9fafb;
+      }
+
+      nav a:hover {
+        background: #eef2ff;
+        border-color: #c7d2fe;
+      }
+
+      main {
+        display: grid;
+        gap: 12px;
+      }
+
+      .card {
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 16px;
+        background: #ffffff;
+      }
+
+      code {
+        background: #f3f4f6;
+        padding: 2px 6px;
+        border-radius: 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header aria-label="Site header">
+        <div class="brand">
+          <h1>Parametrization demo</h1>
+          <p>Header with 5 links (unique href) for Playwright tests</p>
+        </div>
+
+        <nav aria-label="Main navigation">
+          <ul>
+            <li>
+              <a href="/docs/getting-started" data-testid="nav-getting-started">Getting started</a>
+            </li>
+            <li>
+              <a href="/docs/test-structure" data-testid="nav-test-structure">Test structure</a>
+            </li>
+            <li>
+              <a href="/docs/parametrization" data-testid="nav-parametrization">Parametrization</a>
+            </li>
+            <li><a href="/docs/fixtures" data-testid="nav-fixtures">Fixtures</a></li>
+            <li><a href="/docs/reporting" data-testid="nav-reporting">Reporting</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <main>
+        <section class="card" aria-label="Intro">
+          <h2 style="margin: 0 0 8px">Purpose</h2>
+          <p style="margin: 0; color: #374151">
+            This page is used to demonstrate <code>test.describe</code> + data-driven tests in
+            Playwright. Target pages are not implemented, only unique <code>href</code> attributes
+            matter.
+          </p>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>
