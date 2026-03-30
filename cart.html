@@ -10,6 +10,7 @@
         max-width: 800px;
         margin: 0 auto;
         padding: 20px;
+        background: #f8fafc;
       }
       .cart-item {
         display: flex;
@@ -17,6 +18,7 @@
         border-bottom: 1px solid #ddd;
         padding: 10px 0;
         margin-bottom: 10px;
+        background: #fff;
       }
       .cart-total {
         font-weight: bold;
@@ -33,10 +35,24 @@
         color: #4285f4;
         text-decoration: none;
       }
+      .learning-hint {
+        border: 1px solid #bfdbfe;
+        background: #eff6ff;
+        border-radius: 8px;
+        padding: 10px 12px;
+        margin-bottom: 14px;
+      }
+      .learning-hint p {
+        margin: 0;
+        font-size: 14px;
+      }
     </style>
   </head>
   <body>
     <h1>Ваша корзина</h1>
+    <div class="learning-hint" role="note">
+      <p>Проверьте список товаров, итоговую сумму и удаление позиции через кнопку `×`.</p>
+    </div>
 
     <div id="cart-items">
       <!-- Товары будут добавлены через JS -->

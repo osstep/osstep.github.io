@@ -5,11 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Практика page.evaluate()</title>
     <style>
+      :root {
+        --primary: #2563eb;
+        --bg-soft: #f8fafc;
+        --border: #d1d5db;
+      }
       body {
         font-family: Arial, sans-serif;
         max-width: 800px;
         margin: 0 auto;
         padding: 20px;
+        background: var(--bg-soft);
       }
       .counter {
         font-size: 24px;
@@ -21,7 +27,7 @@
       button {
         padding: 8px 15px;
         margin: 5px;
-        background-color: #4285f4;
+        background-color: var(--primary);
         color: white;
         border: none;
         border-radius: 4px;
@@ -33,19 +39,37 @@
       #dynamic-content {
         margin: 20px 0;
         padding: 15px;
-        border: 1px solid #ddd;
+        border: 1px solid var(--border);
+        background: #fff;
         border-radius: 5px;
       }
       .user-card {
-        border: 1px solid #ddd;
+        border: 1px solid var(--border);
+        background: #fff;
         padding: 15px;
         margin: 10px 0;
         border-radius: 5px;
+      }
+      .learning-hint {
+        border: 1px solid #bfdbfe;
+        background: #eff6ff;
+        border-radius: 8px;
+        padding: 12px 14px;
+        margin-bottom: 14px;
+      }
+      .learning-hint p {
+        margin: 0;
       }
     </style>
   </head>
   <body>
     <h1>Практика работы с page.evaluate()</h1>
+    <div class="learning-hint" role="note">
+      <p>
+        Сравнивайте обычные локаторы и `evaluate()`: где удобнее получить данные из DOM и где лучше
+        оставить проверку на стороне Playwright.
+      </p>
+    </div>
 
     <div class="counter-container">
       <h2>Счётчик: <span id="counter">0</span></h2>

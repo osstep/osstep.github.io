@@ -81,11 +81,38 @@
         background-color: #f8d7da;
         color: #721c24;
       }
+
+      .learning-hint {
+        border: 1px solid #c7d2fe;
+        background: linear-gradient(180deg, #eef2ff 0%, #f8f9fa 100%);
+        border-radius: 8px;
+        padding: 0.9rem 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .learning-hint h2 {
+        margin: 0 0 0.35rem;
+        color: #312e81;
+        font-size: 1rem;
+      }
+
+      .learning-hint p {
+        margin: 0;
+        color: #374151;
+        font-size: 0.95rem;
+      }
     </style>
   </head>
   <body>
     <div class="container">
       <h1>Практика действия check() в Playwright</h1>
+      <div class="learning-hint" role="note" aria-live="polite">
+        <h2>Подсказка для практики</h2>
+        <p>
+          Тренируйте `check()` и `uncheck()` через `getByLabel()`, а после каждого действия проверяйте
+          состояние и текстовые статусы.
+        </p>
+      </div>
 
       <!-- Секция 1: Одиночные чекбоксы -->
       <section class="form-section">

@@ -6,11 +6,14 @@
       body {
         font-family: Arial, sans-serif;
         padding: 20px;
+        background: #f8fafc;
       }
       .container {
         border: 1px solid #ddd;
         padding: 20px;
         margin-bottom: 20px;
+        border-radius: 8px;
+        background: #fff;
       }
       .visible {
         background-color: #d4edda;
@@ -53,10 +56,27 @@
         margin: 5px;
         cursor: pointer;
       }
+      .learning-hint {
+        border: 1px solid #bfdbfe;
+        background: #eff6ff;
+        border-radius: 8px;
+        padding: 10px 12px;
+        margin-bottom: 14px;
+      }
+      .learning-hint p {
+        margin: 0;
+        font-size: 14px;
+      }
     </style>
   </head>
   <body>
     <h1>Тестирование видимости элементов</h1>
+    <div class="learning-hint" role="note">
+      <p>
+        Проверяйте разницу между `display: none`, `visibility: hidden` и `opacity: 0` через
+        `toBeVisible()` и CSS-assertions.
+      </p>
+    </div>
 
     <div class="container">
       <div id="always-visible" class="visible">Всегда видимый элемент</div>

@@ -10,11 +10,13 @@
         max-width: 400px;
         margin: 0 auto;
         padding: 20px;
+        background: #f8fafc;
       }
       .login-form {
         border: 1px solid #ddd;
         padding: 20px;
         border-radius: 8px;
+        background: #fff;
       }
       input {
         display: block;
@@ -35,10 +37,24 @@
         color: red;
         margin-top: 10px;
       }
+      .learning-hint {
+        border: 1px solid #bfdbfe;
+        background: #eff6ff;
+        border-radius: 8px;
+        padding: 10px 12px;
+        margin-bottom: 14px;
+      }
+      .learning-hint p {
+        margin: 0;
+        font-size: 14px;
+      }
     </style>
   </head>
   <body>
     <h1>Вход в систему</h1>
+    <div class="learning-hint" role="note">
+      <p>Учебные данные для успешного входа: `admin` / `admin123`.</p>
+    </div>
     <div class="login-form">
       <input type="text" id="username" placeholder="Имя пользователя" />
       <input type="password" id="password" placeholder="Пароль" />

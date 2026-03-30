@@ -5,14 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Практика тестовых шагов</title>
     <style>
+      :root {
+        --primary: #2563eb;
+        --border: #d1d5db;
+        --bg-soft: #f8fafc;
+      }
       body {
         font-family: Arial, sans-serif;
         max-width: 800px;
         margin: 0 auto;
         padding: 20px;
+        background: var(--bg-soft);
       }
       .auth-form {
-        border: 1px solid #ddd;
+        border: 1px solid var(--border);
+        background: #fff;
         padding: 20px;
         border-radius: 8px;
         margin-top: 20px;
@@ -26,7 +33,7 @@
       }
       button {
         padding: 8px 15px;
-        background-color: #4285f4;
+        background-color: var(--primary);
         color: white;
         border: none;
         border-radius: 4px;
@@ -44,13 +51,30 @@
       .profile-section {
         margin-top: 20px;
         padding: 15px;
-        border: 1px solid #ddd;
+        border: 1px solid var(--border);
+        background: #fff;
         border-radius: 5px;
+      }
+      .learning-hint {
+        border: 1px solid #bfdbfe;
+        background: #eff6ff;
+        border-radius: 8px;
+        padding: 12px 14px;
+        margin-bottom: 14px;
+      }
+      .learning-hint p {
+        margin: 0;
       }
     </style>
   </head>
   <body>
     <h1>Практика тестовых шагов</h1>
+    <div class="learning-hint" role="note">
+      <p>
+        Совет: группируйте действия через `test.step(...)` по этапам сценария: предусловия, действие,
+        проверка результата.
+      </p>
+    </div>
 
     <div class="auth-form" id="auth-form">
       <h2>Форма регистрации</h2>

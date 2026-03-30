@@ -105,6 +105,20 @@
         opacity: 1;
       }
 
+      .learning-hint {
+        border: 1px solid #c7d2fe;
+        background: linear-gradient(180deg, #eef2ff 0%, #f8f9fa 100%);
+        border-radius: 10px;
+        padding: 10px 12px;
+        margin-bottom: 16px;
+      }
+
+      .learning-hint p {
+        margin: 0;
+        font-size: 14px;
+        color: #374151;
+      }
+
       .decoration {
         position: absolute;
         width: 200px;
@@ -130,6 +144,9 @@
       <div class="decoration decoration-2"></div>
 
       <h1>Welcome Back</h1>
+      <div class="learning-hint" role="note">
+        <p>Учебный сценарий: введите `admin` / `admin123`, затем проверьте переход на dashboard.</p>
+      </div>
 
       <div class="input-group">
         <input type="text" id="username" placeholder="Enter your username" />

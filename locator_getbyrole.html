@@ -210,6 +210,26 @@
         color: white;
         border-radius: 8px;
       }
+
+      .learning-hint {
+        border: 1px solid #c7d2fe;
+        background: linear-gradient(180deg, #eef2ff 0%, #f8f9fa 100%);
+        border-radius: 8px;
+        padding: 0.9rem 1rem;
+        margin-bottom: 1.25rem;
+      }
+
+      .learning-hint h2 {
+        margin: 0 0 0.35rem;
+        color: #312e81;
+        font-size: 1rem;
+      }
+
+      .learning-hint p {
+        margin: 0;
+        color: #374151;
+        font-size: 0.95rem;
+      }
     </style>
   </head>
   <body>
@@ -218,6 +238,13 @@
         <h1>Практика локатора getByRole()</h1>
         <p>Освойте работу с локатором <code>getByRole()</code> на этих примерах</p>
       </header>
+      <div class="learning-hint" role="note">
+        <h2>Подсказка</h2>
+        <p>
+          Сначала находите элементы по семантической роли и имени, а потом дополняйте проверками
+          состояния (`disabled`, `aria-selected`, `role="alert"`).
+        </p>
+      </div>
 
       <main>
         <!-- Секция 1: Кнопки -->

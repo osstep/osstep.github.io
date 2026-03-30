@@ -10,6 +10,7 @@
         max-width: 800px;
         margin: 0 auto;
         padding: 20px;
+        background: #f8fafc;
       }
       .product-list {
         display: grid;
@@ -21,6 +22,7 @@
         border: 1px solid #ddd;
         padding: 15px;
         border-radius: 8px;
+        background: #fff;
       }
       .product-card h3 {
         margin-top: 0;
@@ -46,6 +48,17 @@
         color: white;
         border-radius: 4px;
       }
+      .learning-hint {
+        border: 1px solid #bbf7d0;
+        background: #f0fdf4;
+        border-radius: 8px;
+        padding: 10px 12px;
+        margin-bottom: 14px;
+      }
+      .learning-hint p {
+        margin: 0;
+        font-size: 14px;
+      }
     </style>
   </head>
   <body>
@@ -54,6 +67,9 @@
       <a href="cart.html" class="cart-btn" id="cart-link">
         Корзина (<span id="cart-count">0</span>)
       </a>
+    </div>
+    <div class="learning-hint" role="note">
+      <p>Добавляйте товары кнопками «В корзину», затем переходите в корзину по кнопке в шапке.</p>
     </div>
 
     <div class="product-list">
