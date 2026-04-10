@@ -1,99 +1,126 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Колесо фортуны</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Orbitron:wght@600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <canvas id="bg-canvas" class="bg-canvas" aria-hidden="true"></canvas>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>УП - Колесо фортуны</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Orbitron:wght@600;700;800&display=swap"
+      rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <canvas id="bg-canvas" class="bg-canvas" aria-hidden="true"></canvas>
 
-  <div id="app-shake" class="app-root">
-    <header class="top-bar glass-panel">
-      <div class="brand">
-        <span class="brand-mark" aria-hidden="true"></span>
-        <div class="brand-text">
-          <h1 class="brand-title">Колесо фортуны</h1>
-          <p class="brand-sub">Digital show · интерактив</p>
+    <div id="app-shake" class="app-root">
+      <header class="top-bar glass-panel">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <div class="brand-text">
+            <h1 class="brand-title">УП тиаме ФОРТУНА</h1>
+            <p class="brand-sub">ЛУЧШАЯ КОМАНДА В МИРЕ</p>
+          </div>
         </div>
-      </div>
-      <div class="top-actions">
-        <button type="button" class="btn btn-primary" id="btn-spin" title="Пробел">
-          <span class="btn-glow"></span>
-          Крутить
+        <div class="top-actions">
+          <button type="button" class="btn btn-primary" id="btn-spin" title="Пробел">
+            <span class="btn-glow"></span>
+            Крутить
+          </button>
+          <button type="button" class="btn btn-ghost" id="btn-reset" title="R">Сбросить</button>
+          <button type="button" class="btn btn-ghost" id="btn-edit" title="E">Участники</button>
+        </div>
+      </header>
+
+      <p class="photo-disclaimer glass-panel" role="note">
+        Фотографии участников и фоновые картинки секторов загружаются только локально и сбрасываются
+        после обновления страницы.
+      </p>
+
+      <main class="layout">
+        <section class="wheel-section">
+          <div class="wheel-frame glass-panel">
+            <div class="wheel-pointer" aria-hidden="true"></div>
+            <div class="wheel-wrap">
+              <canvas
+                id="wheel-canvas"
+                width="720"
+                height="720"
+                aria-label="Колесо фортуны"></canvas>
+            </div>
+            <p class="wheel-hint" id="wheel-hint">
+              Добавьте участников и нажмите «Крутить» (достаточно одного).
+            </p>
+          </div>
+        </section>
+
+        <aside class="side-col">
+          <div class="glass-panel history-panel">
+            <div class="panel-head">
+              <h2 class="panel-title">История</h2>
+              <button type="button" class="btn btn-small btn-ghost" id="btn-clear-history">
+                Очистить
+              </button>
+            </div>
+            <ol class="history-list" id="history-list" aria-live="polite"></ol>
+            <p class="history-empty" id="history-empty">
+              Пока никто не выпал — запустите первый спин.
+            </p>
+          </div>
+        </aside>
+      </main>
+    </div>
+
+    <!-- Winner overlay -->
+    <div id="winner-overlay" class="winner-overlay" hidden aria-hidden="true">
+      <div class="winner-backdrop"></div>
+      <div class="winner-card glass-panel winner-card-inner" id="winner-card">
+        <button type="button" class="winner-close icon-btn" id="winner-close" title="Закрыть (X)">
+          ×
         </button>
-        <button type="button" class="btn btn-ghost" id="btn-reset" title="R">Сбросить</button>
-        <button type="button" class="btn btn-ghost" id="btn-edit" title="E">Участники</button>
-      </div>
-    </header>
-
-    <p class="photo-disclaimer glass-panel" role="note">
-      Фотографии участников и фоновые картинки секторов загружаются только локально и сбрасываются после обновления страницы.
-    </p>
-
-    <main class="layout">
-      <section class="wheel-section">
-        <div class="wheel-frame glass-panel">
-          <div class="wheel-pointer" aria-hidden="true"></div>
-          <div class="wheel-wrap">
-            <canvas id="wheel-canvas" width="720" height="720" aria-label="Колесо фортуны"></canvas>
-          </div>
-          <p class="wheel-hint" id="wheel-hint">Добавьте участников и нажмите «Крутить» (достаточно одного).</p>
+        <div class="winner-burst" id="winner-burst" aria-hidden="true"></div>
+        <div class="winner-place" id="winner-place">1 место</div>
+        <div class="winner-avatar-wrap">
+          <img id="winner-avatar" class="winner-avatar" alt="" hidden />
+          <div id="winner-avatar-fallback" class="winner-avatar-fallback"></div>
         </div>
-      </section>
-
-      <aside class="side-col">
-        <div class="glass-panel history-panel">
-          <div class="panel-head">
-            <h2 class="panel-title">История</h2>
-            <button type="button" class="btn btn-small btn-ghost" id="btn-clear-history">Очистить</button>
-          </div>
-          <ol class="history-list" id="history-list" aria-live="polite"></ol>
-          <p class="history-empty" id="history-empty">Пока никто не выпал — запустите первый спин.</p>
-        </div>
-      </aside>
-    </main>
-  </div>
-
-  <!-- Winner overlay -->
-  <div id="winner-overlay" class="winner-overlay" hidden aria-hidden="true">
-    <div class="winner-backdrop"></div>
-    <div class="winner-card glass-panel winner-card-inner" id="winner-card">
-      <button type="button" class="winner-close icon-btn" id="winner-close" title="Закрыть (X)">×</button>
-      <div class="winner-burst" id="winner-burst" aria-hidden="true"></div>
-      <div class="winner-place" id="winner-place">1 место</div>
-      <div class="winner-avatar-wrap">
-        <img id="winner-avatar" class="winner-avatar" alt="" hidden />
-        <div id="winner-avatar-fallback" class="winner-avatar-fallback"></div>
-      </div>
-      <h3 class="winner-name" id="winner-name">—</h3>
-      <p class="winner-tagline">Победитель раунда</p>
-    </div>
-  </div>
-
-  <canvas id="confetti-canvas" class="confetti-canvas" aria-hidden="true"></canvas>
-
-  <!-- Participants modal -->
-  <div id="modal-participants" class="modal" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-    <div class="modal-backdrop" data-close-modal></div>
-    <div class="modal-sheet glass-panel">
-      <div class="modal-head">
-        <h2 id="modal-title" class="panel-title">Участники</h2>
-        <button type="button" class="icon-btn" id="modal-close" title="Закрыть (X)">×</button>
-      </div>
-      <p class="modal-note">Перетащите строки за ⋮⋮, чтобы изменить порядок на колесе. Фон сектора: картинка «Фон» (приоритет) или цвет / палитра «Авто».</p>
-      <ul class="participant-list" id="participant-list"></ul>
-      <button type="button" class="btn btn-ghost btn-block" id="btn-add-participant">+ Добавить участника</button>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary" data-close-modal>Готово</button>
+        <h3 class="winner-name" id="winner-name">—</h3>
+        <p class="winner-tagline">Победитель раунда</p>
       </div>
     </div>
-  </div>
 
-  <script src="script.js"></script>
-</body>
+    <canvas id="confetti-canvas" class="confetti-canvas" aria-hidden="true"></canvas>
+
+    <!-- Participants modal -->
+    <div
+      id="modal-participants"
+      class="modal"
+      hidden
+      aria-hidden="true"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title">
+      <div class="modal-backdrop" data-close-modal></div>
+      <div class="modal-sheet glass-panel">
+        <div class="modal-head">
+          <h2 id="modal-title" class="panel-title">Участники</h2>
+          <button type="button" class="icon-btn" id="modal-close" title="Закрыть (X)">×</button>
+        </div>
+        <p class="modal-note">
+          Перетащите строки за ⋮⋮, чтобы изменить порядок на колесе. Фон сектора: картинка «Фон»
+          (приоритет) или цвет / палитра «Авто».
+        </p>
+        <ul class="participant-list" id="participant-list"></ul>
+        <button type="button" class="btn btn-ghost btn-block" id="btn-add-participant">
+          + Добавить участника
+        </button>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-close-modal>Готово</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
 </html>
