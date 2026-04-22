@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Call Stack — JavaScript V8</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22263a;
+      --border: #2e3250;
+      --accent: #6c63ff;
+      --accent2: #ff6584;
+      --green: #43d9ad;
+      --yellow: #ffd166;
+      --text: #e2e8f0;
+      --muted: #8892b0;
+      --code-bg: #141722;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 32px 16px 64px;
+    }
+
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      background: linear-gradient(135deg, var(--accent), var(--green));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 36px;
+      text-align: center;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      gap: 24px;
+      width: 100%;
+      max-width: 1100px;
+    }
+
+    @media (max-width: 800px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    /* ── Code panel ── */
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    .panel-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .panel-title .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    pre {
+      padding: 16px 22px;
+      font-family: 'Fira Code', 'Cascadia Code', monospace;
+      font-size: 0.85rem;
+      line-height: 1;
+      background: var(--code-bg);
+      overflow-x: auto;
+      counter-reset: line;
+    }
+
+    .line {
+      display: block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      transition: background 0.25s, color 0.25s;
+      white-space: pre;
+      line-height: 1.6;
+    }
+
+    .line-empty {
+      padding-top: 0;
+      padding-bottom: 0;
+      line-height: 0.7;
+    }
+
+    .line.active {
+      background: rgba(108, 99, 255, 0.22);
+      color: #fff;
+      position: relative;
+    }
+
+    .line.active::before {
+      content: '▶';
+      position: absolute;
+      left: -14px;
+      color: var(--accent);
+      font-size: 0.7rem;
+    }
+
+    /* ── Right column ── */
+    .right-col {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    /* ── Call Stack visual ── */
+    .stack-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      flex: 1;
+    }
+
+    .stack-frames {
+      padding: 14px 16px;
+      min-height: 220px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .frame {
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.82rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: slideIn 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateY(20px); opacity: 0; }
+      to   { transform: translateY(0);   opacity: 1; }
+    }
+
+    @keyframes slideOut {
+      from { transform: translateY(0);   opacity: 1; }
+      to   { transform: translateY(-20px); opacity: 0; }
+    }
+
+    .frame.removing {
+      animation: slideOut 0.25s ease forwards;
+    }
+
+    .frame-global {
+      background: rgba(67, 217, 173, 0.12);
+      border: 1px solid rgba(67, 217, 173, 0.3);
+      color: var(--green);
+    }
+
+    .frame-fn {
+      background: rgba(108, 99, 255, 0.15);
+      border: 1px solid rgba(108, 99, 255, 0.4);
+      color: #a89dff;
+    }
+
+    .frame-top {
+      background: rgba(255, 101, 132, 0.15);
+      border: 1px solid rgba(255, 101, 132, 0.4);
+      color: var(--accent2);
+    }
+
+    .frame-icon { font-size: 1rem; }
+
+    .frame-name { flex: 1; font-weight: 600; }
+
+    .frame-badge {
+      font-size: 0.65rem;
+      padding: 2px 7px;
+      border-radius: 99px;
+      background: rgba(255,255,255,0.07);
+      color: var(--muted);
+    }
+
+    .stack-empty {
+      color: var(--muted);
+      font-size: 0.8rem;
+      text-align: center;
+      padding: 40px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .stack-empty .icon { font-size: 2rem; opacity: .4; }
+
+    /* ── Explanation box ── */
+    .explanation {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+    }
+
+    .explanation .step-label {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--accent);
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .explanation .step-text {
+      font-size: 0.88rem;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .explanation .step-text strong { color: var(--yellow); }
+    .explanation .step-text code {
+      background: var(--code-bg);
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.82rem;
+      color: var(--green);
+    }
+
+    /* ── Controls ── */
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 18px;
+      justify-content: center;
+    }
+
+    .btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 22px;
+      border: none;
+      border-radius: 9px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn:active { transform: scale(0.96); }
+
+    .btn-prev {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-prev:hover:not(:disabled) { background: var(--border); }
+
+    .btn-next {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-next:hover:not(:disabled) { background: #857df0; }
+
+    .btn-reset {
+      background: var(--surface2);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+    }
+
+    .btn-reset:hover { color: var(--text); background: var(--border); }
+
+    .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    /* ── Progress ── */
+    .progress-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 14px;
+      max-width: 1100px;
+      width: 100%;
+    }
+
+    .progress-bar {
+      flex: 1;
+      height: 4px;
+      background: var(--surface2);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--green));
+      border-radius: 99px;
+      transition: width 0.3s ease;
+    }
+
+    .progress-text {
+      font-size: 0.78rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    /* ── Scenario selector ── */
+    .scenario-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 22px;
+    }
+
+    .scenario-btn {
+      padding: 7px 16px;
+      border-radius: 99px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .scenario-btn:hover { color: var(--text); border-color: var(--accent); }
+    .scenario-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    /* ── Legend ── */
+    .legend {
+      display: flex;
+      gap: 16px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 6px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .legend span { display: flex; align-items: center; gap: 5px; }
+    .legend .dot {
+      width: 9px; height: 9px; border-radius: 50%;
+    }
+
+    /* ── Memory view (heap hint) ── */
+    .heap-hint {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+    }
+
+    .heap-hint .hint-title {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .heap-hint .hint-body {
+      font-size: 0.8rem;
+      color: var(--text);
+      line-height: 1.55;
+    }
+
+    .heap-hint .hint-body code {
+      color: var(--green);
+      background: var(--code-bg);
+      padding: 1px 4px;
+      border-radius: 3px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.78rem;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Call Stack в JavaScript (V8)</h1>
+  <p class="subtitle">Пошаговая визуализация того, как V8 управляет стеком вызовов</p>
+
+  <div class="scenario-bar" id="scenarioBar"></div>
+
+  <div class="layout">
+    <!-- Left: code -->
+    <div>
+      <div class="panel">
+        <div class="panel-title"><span class="dot"></span> Исходный код</div>
+        <pre id="codeView"></pre>
+      </div>
+      <div class="controls">
+        <button class="btn btn-reset" id="btnReset" title="Сбросить">↺ Сброс</button>
+        <button class="btn btn-prev" id="btnPrev">← Назад</button>
+        <button class="btn btn-next" id="btnNext">Вперёд →</button>
+      </div>
+      <div class="progress-row">
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <span class="progress-text" id="progressText">Шаг 0 / 0</span>
+      </div>
+      <div class="legend" style="margin-top:12px;">
+        <span><span class="dot" style="background:var(--green)"></span>Global Execution Context</span>
+        <span><span class="dot" style="background:var(--accent)"></span>Function frame</span>
+        <span><span class="dot" style="background:var(--accent2)"></span>Верхний фрейм (выполняется)</span>
+      </div>
+    </div>
+
+    <!-- Right: stack + explanation -->
+    <div class="right-col">
+      <div class="stack-wrap">
+        <div class="panel-title"><span class="dot" style="background:var(--accent2)"></span> Call Stack</div>
+        <div class="stack-frames" id="stackFrames"></div>
+      </div>
+
+      <div class="explanation">
+        <div class="step-label" id="stepLabel">Шаг 0</div>
+        <div class="step-text" id="stepText">Выберите сценарий и нажмите «Вперёд», чтобы начать.</div>
+      </div>
+
+      <div class="heap-hint">
+        <div class="hint-title">Память (Heap)</div>
+        <div class="hint-body" id="heapHint">Объекты и замыкания хранятся в <code>Heap</code>. Call Stack хранит только ссылки и примитивы.</div>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   SCENARIOS
+   Each scenario has:
+     code: string[] — source lines (1-indexed in UI)
+     steps: array of {
+       lines: number[]       — highlighted line indices (0-based)
+       stack: FrameDef[]     — full stack state after this step
+       text: string          — explanation HTML
+       heap?: string         — heap hint override
+     }
+   FrameDef: { name, type: 'global'|'fn'|'top', badge? }
+═══════════════════════════════════════════════════════════════ */
+
+const GLOBAL = { name: 'Global Execution Context', type: 'global', badge: 'main' };
+
+const scenarios = [
+  // ── 1. Variables & expressions (beginner) ────────────────────
+  {
+    id: 'simple',
+    label: 'Переменные и вывод',
+    code: [
+      'let x = 10;',
+      'let y = 20;',
+      'let sum = x + y;',
+      '',
+      'console.log(x);',
+      'console.log(y);',
+      'console.log(sum);',
+      'console.log(x * y);',
+    ],
+    steps: [
+      {
+        lines: [],
+        stack: [],
+        text: 'V8 ещё не начал выполнение. <strong>Call Stack пуст.</strong> Браузер только что загрузил скрипт.',
+        heap: 'Пока ничего нет — ни переменных, ни значений.',
+      },
+      {
+        lines: [0],
+        stack: [GLOBAL],
+        text: 'V8 создаёт <strong>Global Execution Context</strong> и кладёт его в стек. Это главный фрейм — он живёт всё время работы скрипта. Начинаем выполнять первую строку: <code>let x = 10</code>.',
+        heap: 'Global Context — это как «комната», в которой живут все переменные верхнего уровня.',
+      },
+      {
+        lines: [0],
+        stack: [{ name: 'Global Execution Context  x = 10', type: 'global', badge: 'main' }],
+        text: 'Переменная <code>x</code> объявлена и получила значение <code>10</code>. Она хранится <strong>прямо внутри</strong> Global Execution Context — никакого нового фрейма не нужно.',
+        heap: 'Число <code>10</code> — примитив. V8 хранит его прямо в переменной, без Heap.',
+      },
+      {
+        lines: [1],
+        stack: [{ name: 'Global Execution Context  x=10  y=20', type: 'global', badge: 'main' }],
+        text: 'Следующая строка: <code>let y = 20</code>. Вторая переменная добавлена в тот же Global Context. Стек не изменился — мы всё ещё в одном фрейме.',
+        heap: 'Каждая новая переменная расширяет «словарь» текущего контекста.',
+      },
+      {
+        lines: [2],
+        stack: [{ name: 'Global Execution Context  x=10  y=20  sum=30', type: 'global', badge: 'main' }],
+        text: '<code>let sum = x + y</code>. V8 вычисляет выражение <code>10 + 20 = 30</code> и записывает результат в <code>sum</code>. Всё происходит внутри Global Context.',
+        heap: 'Выражение вычисляется «на лету» — промежуточный результат нигде не сохраняется отдельно.',
+      },
+      {
+        lines: [4],
+        stack: [
+          { name: 'Global Execution Context', type: 'global', badge: 'main' },
+          { name: 'console.log(10)', type: 'top', badge: 'вызов' },
+        ],
+        text: '<code>console.log(x)</code> — это <strong>вызов функции</strong>! V8 создаёт новый фрейм и кладёт его на стек. Аргумент <code>x = 10</code> передан. В консоль выводится <strong>10</strong>.',
+        heap: '<code>console</code> — встроенный объект браузера. Его метод <code>log</code> — тоже функция, поэтому стек и меняется.',
+      },
+      {
+        lines: [4],
+        stack: [{ name: 'Global Execution Context', type: 'global', badge: 'main' }],
+        text: '<code>console.log</code> завершился — его фрейм <strong>извлечён (pop)</strong>. Стек вернулся к исходному состоянию. Выполнение продолжается со следующей строки.',
+      },
+      {
+        lines: [5],
+        stack: [
+          { name: 'Global Execution Context', type: 'global', badge: 'main' },
+          { name: 'console.log(20)', type: 'top', badge: 'вызов' },
+        ],
+        text: '<code>console.log(y)</code> — снова вызов функции, снова новый фрейм. Выводится <strong>20</strong>. Каждый <code>console.log</code> — это отдельный фрейм в стеке.',
+      },
+      {
+        lines: [5],
+        stack: [{ name: 'Global Execution Context', type: 'global', badge: 'main' }],
+        text: 'Фрейм <code>console.log</code> извлечён. Стек снова чистый — только Global Context.',
+      },
+      {
+        lines: [6],
+        stack: [
+          { name: 'Global Execution Context', type: 'global', badge: 'main' },
+          { name: 'console.log(30)', type: 'top', badge: 'вызов' },
+        ],
+        text: '<code>console.log(sum)</code> — передаётся значение <code>sum = 30</code>. Выводится <strong>30</strong>.',
+      },
+      {
+        lines: [6],
+        stack: [{ name: 'Global Execution Context', type: 'global', badge: 'main' }],
+        text: 'Фрейм извлечён. Осталась последняя строка.',
+      },
+      {
+        lines: [7],
+        stack: [
+          { name: 'Global Execution Context', type: 'global', badge: 'main' },
+          { name: 'console.log(200)', type: 'top', badge: 'вызов' },
+        ],
+        text: '<code>console.log(x * y)</code>. Сначала V8 <strong>вычисляет выражение</strong> <code>10 * 20 = 200</code>, потом вызывает <code>console.log</code> с результатом. Выводится <strong>200</strong>.',
+        heap: 'Порядок важен: сначала вычисляется выражение, потом результат передаётся в функцию.',
+      },
+      {
+        lines: [],
+        stack: [],
+        text: 'Скрипт выполнен полностью. Global Context извлечён. <strong>Call Stack пуст.</strong> Главный вывод: каждый вызов функции (даже <code>console.log</code>) создаёт фрейм в стеке — и удаляется, когда функция завершается.',
+        heap: 'GC (сборщик мусора) V8 теперь может освободить переменные <code>x</code>, <code>y</code>, <code>sum</code> если они больше не нужны.',
+      },
+    ],
+  },
+
+  // ── 2. Two function calls ─────────────────────────────────────
+  {
+    id: 'functions',
+    label: 'Вызов функций',
+    code: [
+      'let a = 5;',
+      'let b = 3;',
+      '',
+      'function add(x, y) {',
+      '  return x + y;',
+      '}',
+      '',
+      'function multiply(x, y) {',
+      '  return x * y;',
+      '}',
+      '',
+      'let sum = add(a, b);',
+      'let product = multiply(a, b);',
+      '',
+      'console.log(sum);',
+      'console.log(product);',
+    ],
+    steps: [
+      {
+        lines: [],
+        stack: [],
+        text: 'Стек пуст. В коде две функции: <code>add</code> и <code>multiply</code>. Сейчас увидим, как V8 по очереди вызывает их.',
+        heap: '<strong>Heap</strong> — это область памяти для сложных данных. Функции <code>add</code> и <code>multiply</code> — это объекты, поэтому они хранятся в Heap. В стеке будет лишь ссылка на них при вызове.',
+      },
+      {
+        lines: [0, 1],
+        stack: [GLOBAL],
+        text: 'V8 создаёт <strong>Global Execution Context</strong> и помещает его в стек. Объявляем <code>a = 5</code> и <code>b = 3</code> — они живут прямо внутри Global Context.',
+        heap: '<strong>Heap</strong> — большая куча памяти. Числа <code>5</code> и <code>3</code> — примитивы, V8 хранит их прямо в переменной, без Heap. Но сами функции <code>add</code> и <code>multiply</code> уже лежат там.',
+      },
+      {
+        lines: [11],
+        stack: [
+          GLOBAL,
+          { name: 'add(5, 3)', type: 'top', badge: 'вызов' },
+        ],
+        text: 'Встречаем вызов <code>add(a, b)</code>. V8 <strong>создаёт новый фрейм</strong> для функции <code>add</code> и кладёт его на стек. Аргументы <code>x = 5</code>, <code>y = 3</code> хранятся внутри этого фрейма.',
+        heap: '<strong>Heap</strong>: функция <code>add</code> находится здесь. Когда мы её вызываем, в Call Stack появляется фрейм — он как «рабочий стол» функции со своими переменными.',
+      },
+      {
+        lines: [4],
+        stack: [
+          GLOBAL,
+          { name: 'add(5, 3)', type: 'top', badge: 'выполняется' },
+        ],
+        text: 'Внутри <code>add</code>: вычисляется <code>x + y → 5 + 3 = 8</code>. Функция возвращает результат.',
+        heap: '<strong>Heap</strong>: промежуточный результат <code>8</code> — это число-примитив, он не попадает в Heap. Просто передаётся обратно в стек.',
+      },
+      {
+        lines: [11],
+        stack: [GLOBAL],
+        text: '<code>add</code> вернула <code>8</code> — её фрейм <strong>извлечён (pop)</strong> из стека. Значение записано в переменную <code>sum = 8</code>. Теперь Global Context снова на вершине.',
+        heap: '<strong>Heap</strong>: фрейм <code>add</code> удалён — память, которую он занимал, освобождается. Переменная <code>sum</code> в Global Context теперь хранит <code>8</code>.',
+      },
+      {
+        lines: [12],
+        stack: [
+          GLOBAL,
+          { name: 'multiply(5, 3)', type: 'top', badge: 'вызов' },
+        ],
+        text: 'Следующий вызов — <code>multiply(a, b)</code>. Новый фрейм создан. <code>x = 5</code>, <code>y = 3</code>. Обратите внимание: имена аргументов те же (<code>x</code>, <code>y</code>), но это <strong>другой фрейм</strong>, никакой связи с предыдущим нет.',
+        heap: '<strong>Heap</strong>: функция <code>multiply</code> лежит здесь. Каждый вызов создаёт <em>новый независимый</em> фрейм — старые данные из <code>add</code> уже недоступны.',
+      },
+      {
+        lines: [8],
+        stack: [
+          GLOBAL,
+          { name: 'multiply(5, 3)', type: 'top', badge: 'выполняется' },
+        ],
+        text: 'Внутри <code>multiply</code>: вычисляется <code>x * y → 5 * 3 = 15</code>. Функция возвращает <code>15</code>.',
+      },
+      {
+        lines: [12],
+        stack: [GLOBAL],
+        text: 'Фрейм <code>multiply</code> извлечён. <code>product = 15</code>. Обе функции выполнены — стек снова содержит только Global Context.',
+        heap: '<strong>Heap</strong>: оба фрейма освобождены. В Global Context теперь четыре переменные: <code>a</code>, <code>b</code>, <code>sum</code>, <code>product</code>.',
+      },
+      {
+        lines: [14],
+        stack: [
+          GLOBAL,
+          { name: 'console.log(8)', type: 'top', badge: 'вывод' },
+        ],
+        text: '<code>console.log(sum)</code> → фрейм в стеке, в консоль выводится <strong>8</strong>, фрейм сразу pop.',
+        heap: '<strong>Heap</strong>: <code>console</code> — это объект браузера, он хранится в Heap. Его метод <code>log</code> — тоже функция в Heap, поэтому и появляется фрейм.',
+      },
+      {
+        lines: [15],
+        stack: [
+          GLOBAL,
+          { name: 'console.log(15)', type: 'top', badge: 'вывод' },
+        ],
+        text: '<code>console.log(product)</code> → фрейм в стеке, выводится <strong>15</strong>, фрейм pop.',
+      },
+      {
+        lines: [],
+        stack: [],
+        text: 'Скрипт выполнен. Global Context извлечён, <strong>Call Stack пуст</strong>. Итог: каждый вызов функции — push фрейма на стек, каждый возврат — pop. Стек работает по принципу <em>«последний вошёл — первый вышел»</em> (LIFO).',
+        heap: '<strong>Heap</strong>: сборщик мусора V8 теперь может освободить объекты, на которые никто не ссылается. Функции <code>add</code> и <code>multiply</code> останутся, пока на них есть ссылки в глобальных переменных.',
+      },
+    ],
+  },
+
+  // ── 3. Recursion ──────────────────────────────────────────────
+  {
+    id: 'recursion',
+    label: 'Рекурсия',
+    code: [
+      'function factorial(n) {',
+      '  if (n <= 1) return 1;',
+      '  return n * factorial(n - 1);',
+      '}',
+      '',
+      'const result = factorial(4);',
+      'console.log(result); // 24',
+    ],
+    steps: [
+      {
+        lines: [],
+        stack: [],
+        text: 'Стек пуст. Сейчас мы увидим, как <strong>рекурсия накапливает фреймы</strong>.',
+      },
+      {
+        lines: [5],
+        stack: [GLOBAL],
+        text: 'Global Context создан. Строка <code>factorial(4)</code> — точка входа.',
+      },
+      {
+        lines: [5, 0],
+        stack: [GLOBAL, { name: 'factorial(4)', type: 'top', badge: 'вызов' }],
+        text: 'Первый вызов <code>factorial(4)</code>. Фрейм: <code>n = 4</code>. Условие <code>n <= 1</code> ложно → переходим к рекурсии.',
+      },
+      {
+        lines: [2, 0],
+        stack: [GLOBAL, { name: 'factorial(4)', type: 'fn' }, { name: 'factorial(3)', type: 'top', badge: 'вызов' }],
+        text: 'Вызов <code>factorial(3)</code>. Новый фрейм: <code>n = 3</code>. Стек растёт. <strong>Каждый рекурсивный вызов — это новый фрейм!</strong>',
+        heap: 'Каждый фрейм хранит своё значение <code>n</code>. Фреймы независимы.',
+      },
+      {
+        lines: [2, 0],
+        stack: [GLOBAL, { name: 'factorial(4)', type: 'fn' }, { name: 'factorial(3)', type: 'fn' }, { name: 'factorial(2)', type: 'top', badge: 'вызов' }],
+        text: 'Вызов <code>factorial(2)</code>. Фрейм: <code>n = 2</code>. Стек растёт дальше.',
+      },
+      {
+        lines: [2, 0, 1],
+        stack: [GLOBAL, { name: 'factorial(4)', type: 'fn' }, { name: 'factorial(3)', type: 'fn' }, { name: 'factorial(2)', type: 'fn' }, { name: 'factorial(1)', type: 'top', badge: 'база' }],
+        text: 'Вызов <code>factorial(1)</code>. Это <strong>базовый случай</strong>: <code>n <= 1</code> → <code>return 1</code>. Рекурсия начинает раскручиваться!',
+        heap: 'Стек достиг максимальной глубины. При очень большом <code>n</code> здесь возникнет <code>RangeError: Maximum call stack size exceeded</code>.',
+      },
+      {
+        lines: [2],
+        stack: [GLOBAL, { name: 'factorial(4)', type: 'fn' }, { name: 'factorial(3)', type: 'fn' }, { name: 'factorial(2)', type: 'top', badge: 'возврат' }],
+        text: '<code>factorial(1)</code> вернул <code>1</code> → pop. <code>factorial(2)</code> считает <code>2 * 1 = 2</code>.',
+      },
+      {
+        lines: [2],
+        stack: [GLOBAL, { name: 'factorial(4)', type: 'fn' }, { name: 'factorial(3)', type: 'top', badge: 'возврат' }],
+        text: '<code>factorial(2)</code> вернул <code>2</code> → pop. <code>factorial(3)</code> считает <code>3 * 2 = 6</code>.',
+      },
+      {
+        lines: [2],
+        stack: [GLOBAL, { name: 'factorial(4)', type: 'top', badge: 'возврат' }],
+        text: '<code>factorial(3)</code> вернул <code>6</code> → pop. <code>factorial(4)</code> считает <code>4 * 6 = 24</code>.',
+      },
+      {
+        lines: [5, 6],
+        stack: [GLOBAL],
+        text: '<code>factorial(4)</code> вернул <code>24</code> → pop. <code>result = 24</code>. Стек вернулся к Global Context.',
+        heap: 'Число <code>24</code> — небольшой integer, хранится прямо в переменной (SMI-оптимизация V8). Heap не задействован.',
+      },
+    ],
+  },
+
+  // ── 4. Stack Overflow ─────────────────────────────────────────
+  {
+    id: 'overflow',
+    label: 'Stack Overflow',
+    code: [
+      'function infinite() {',
+      '  return infinite(); // ← нет базового случая!',
+      '}',
+      '',
+      'infinite();',
+      '// RangeError: Maximum call',
+      '// stack size exceeded',
+    ],
+    steps: [
+      {
+        lines: [],
+        stack: [],
+        text: 'Сейчас мы увидим самую известную ошибку стека — <strong>Stack Overflow</strong>.',
+      },
+      {
+        lines: [4],
+        stack: [GLOBAL],
+        text: 'Global Context создан. Вызов <code>infinite()</code> запускается.',
+      },
+      {
+        lines: [4, 0],
+        stack: [GLOBAL, { name: 'infinite()', type: 'top', badge: '1' }],
+        text: 'Первый вызов <code>infinite()</code>. Сразу вызывает себя — нет базового случая.',
+      },
+      {
+        lines: [1],
+        stack: [GLOBAL, { name: 'infinite()', type: 'fn', badge: '1' }, { name: 'infinite()', type: 'top', badge: '2' }],
+        text: 'Второй вызов. Стек растёт. Каждый вызов добавляет фрейм, ни один не завершается.',
+      },
+      {
+        lines: [1],
+        stack: [
+          GLOBAL,
+          { name: 'infinite()', type: 'fn', badge: '1' },
+          { name: 'infinite()', type: 'fn', badge: '2' },
+          { name: 'infinite()', type: 'top', badge: '3' },
+        ],
+        text: 'Третий вызов. Стек продолжает расти. В реальности V8 делает ~15 000 вызовов...',
+      },
+      {
+        lines: [1],
+        stack: [
+          GLOBAL,
+          { name: 'infinite()', type: 'fn', badge: '···' },
+          { name: 'infinite()', type: 'fn', badge: '···' },
+          { name: 'infinite()', type: 'fn', badge: '···' },
+          { name: 'infinite()', type: 'fn', badge: '···' },
+          { name: 'infinite()', type: 'top', badge: '~15000' },
+        ],
+        text: 'Стек <strong>переполнен</strong>! V8 достиг предела (обычно ~15 000 фреймов). Память стека исчерпана.',
+        heap: 'Heap при этом может быть почти пустым — переполняется именно Call Stack, а не Heap.',
+      },
+      {
+        lines: [5, 6],
+        stack: [GLOBAL],
+        text: 'V8 бросает <strong><code>RangeError: Maximum call stack size exceeded</code></strong>. Все фреймы сворачиваются. Ошибка всплывает в Global Context. Если не поймать — скрипт крашится.',
+        heap: 'После ошибки GC освобождает все фреймы. Стек опустошён принудительно.',
+      },
+    ],
+  },
+
+  // ── 5. Async / Event Loop ─────────────────────────────────────
+  {
+    id: 'async',
+    label: 'Async & Event Loop',
+    code: [
+      'console.log("start");       // 1',
+      '',
+      'setTimeout(() => {',
+      '  console.log("timeout");  // 3',
+      '}, 0);',
+      '',
+      'console.log("end");         // 2',
+    ],
+    steps: [
+      {
+        lines: [],
+        stack: [],
+        text: 'Классический пример: <strong>почему setTimeout с 0мс выполняется ПОСЛЕ синхронного кода?</strong>',
+        heap: 'Event Loop, Task Queue и Web APIs — отдельные компоненты браузера/Node. Они не входят в Call Stack.',
+      },
+      {
+        lines: [0],
+        stack: [GLOBAL, { name: 'console.log("start")', type: 'top', badge: 'sync' }],
+        text: '<code>console.log("start")</code> — синхронный вызов. Фрейм создан, <strong>"start"</strong> выведен, фрейм немедленно pop.',
+        heap: 'Строка <code>"start"</code> в пуле строк V8.',
+      },
+      {
+        lines: [2, 3, 4],
+        stack: [GLOBAL, { name: 'setTimeout(cb, 0)', type: 'top', badge: 'Web API' }],
+        text: '<code>setTimeout</code> — это Web API. V8 <strong>передаёт колбэк браузеру</strong> и сразу же pop. Колбэк не выполняется прямо сейчас!',
+        heap: 'Колбэк-функция сохраняется в браузерной памяти до истечения таймера.',
+      },
+      {
+        lines: [6],
+        stack: [GLOBAL, { name: 'console.log("end")', type: 'top', badge: 'sync' }],
+        text: '<code>console.log("end")</code> — следующая синхронная строка. <strong>"end"</strong> выводится. Колбэк ещё ждёт!',
+      },
+      {
+        lines: [6],
+        stack: [GLOBAL],
+        text: '<code>console.log("end")</code> завершился. Весь <strong>синхронный код скрипта</strong> выполнен. Global Context ещё в стеке — скрипт не завершён.',
+        heap: 'Колбэк находится в Task Queue (Macrotask Queue). Event Loop ждёт, пока Call Stack освободится.',
+      },
+      {
+        lines: [],
+        stack: [],
+        text: 'Call Stack <strong>пуст</strong>! Event Loop видит это и берёт задачу из Task Queue.',
+        heap: 'Event Loop: "Стек пуст? Есть задачи? → выполнить следующую задачу!"',
+      },
+      {
+        lines: [3],
+        stack: [GLOBAL, { name: '() => { console.log(...) }', type: 'fn' }, { name: 'console.log("timeout")', type: 'top', badge: 'async' }],
+        text: 'Event Loop кладёт колбэк в стек. <code>console.log("timeout")</code> выполняется. <strong>"timeout"</strong> выводится — <em>после</em> "end".',
+        heap: 'Порядок вывода: <code>"start"</code> → <code>"end"</code> → <code>"timeout"</code>. Именно так работает Event Loop!',
+      },
+      {
+        lines: [],
+        stack: [],
+        text: 'Всё выполнено. Call Stack пуст. Event Loop ждёт новых задач. <strong>Ключевой вывод: асинхронные колбэки никогда не прерывают синхронный код.</strong>',
+        heap: 'V8 + libuv (Node) / браузерные Web APIs + Event Loop = основа асинхронной модели JS.',
+      },
+    ],
+  },
+];
+
+/* ═══════════════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════════════ */
+let currentScenario = 0;
+let currentStep = 0;
+let prevStack = [];
+
+/* ═══════════════════════════════════════════════════════════════
+   RENDER
+═══════════════════════════════════════════════════════════════ */
+function renderScenarioBar() {
+  const bar = document.getElementById('scenarioBar');
+  bar.innerHTML = scenarios.map((s, i) =>
+    `<button class="scenario-btn ${i === currentScenario ? 'active' : ''}" data-i="${i}">${s.label}</button>`
+  ).join('');
+  bar.querySelectorAll('.scenario-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentScenario = +btn.dataset.i;
+      currentStep = 0;
+      prevStack = [];
+      render();
+      renderScenarioBar();
+    });
+  });
+}
+
+function renderCode(step) {
+  const scen = scenarios[currentScenario];
+  const activeLines = new Set(step.lines);
+  return scen.code.map((line, i) => {
+    const isEmpty = line.trim() === '';
+    const base = isEmpty ? 'line line-empty' : 'line';
+    const cls = !isEmpty && activeLines.has(i) ? 'line active' : base;
+    return `<span class="${cls}">${escHtml(line) || ' '}</span>`;
+  }).join('\n');
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function renderStack(step) {
+  const frames = step.stack;
+  const el = document.getElementById('stackFrames');
+
+  if (frames.length === 0) {
+    el.innerHTML = `<div class="stack-empty"><span class="icon">⬜</span>Стек пуст</div>`;
+    return;
+  }
+
+  const icons = { global: '🌍', fn: '⚙️', top: '▶️' };
+  el.innerHTML = [...frames].reverse().map((f, i) => {
+    const cls = `frame frame-${f.type}`;
+    const badge = f.badge ? `<span class="frame-badge">${f.badge}</span>` : '';
+    return `<div class="${cls}"><span class="frame-icon">${icons[f.type]}</span><span class="frame-name">${escHtml(f.name)}</span>${badge}</div>`;
+  }).join('');
+}
+
+function render() {
+  const scen = scenarios[currentScenario];
+  const step = scen.steps[currentStep];
+  const total = scen.steps.length - 1;
+
+  document.getElementById('codeView').innerHTML = renderCode(step);
+  renderStack(step);
+  document.getElementById('stepLabel').textContent = `Шаг ${currentStep} / ${total}`;
+  document.getElementById('stepText').innerHTML = step.text;
+  document.getElementById('heapHint').innerHTML = step.heap ||
+    '<strong>Heap</strong> — это большая область памяти для сложных данных: строк, объектов, массивов, функций. Call Stack хранит только числа и ссылки на данные в Heap.';
+  document.getElementById('progressFill').style.width = total > 0 ? `${(currentStep / total) * 100}%` : '0%';
+  document.getElementById('progressText').textContent = `Шаг ${currentStep} / ${total}`;
+  document.getElementById('btnPrev').disabled = currentStep === 0;
+  document.getElementById('btnNext').disabled = currentStep === total;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CONTROLS
+═══════════════════════════════════════════════════════════════ */
+document.getElementById('btnNext').addEventListener('click', () => {
+  const total = scenarios[currentScenario].steps.length - 1;
+  if (currentStep < total) { currentStep++; render(); }
+});
+
+document.getElementById('btnPrev').addEventListener('click', () => {
+  if (currentStep > 0) { currentStep--; render(); }
+});
+
+document.getElementById('btnReset').addEventListener('click', () => {
+  currentStep = 0;
+  prevStack = [];
+  render();
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+    document.getElementById('btnNext').click();
+  } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+    document.getElementById('btnPrev').click();
+  }
+});
+
+/* ═══════════════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════════════ */
+renderScenarioBar();
+render();
+</script>
+</body>
+</html>
