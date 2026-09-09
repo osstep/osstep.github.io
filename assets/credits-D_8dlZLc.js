@@ -1,0 +1,1 @@
+var e={"brief.strategy":10,carousel:30,"cover.kit":25,"feed.grid":60,"ideas.bank":30,"packaging.profile":20,"post.telegram":20,"publish.timecodes":10,"script.reels":20,"script.reels.own":20,"script.youtube":40,"shots.ai":20,"strategy.blog":40,"strategy.youtube":100};function t(t){return Object.hasOwn(e,t)?e[t]:null}export{t};

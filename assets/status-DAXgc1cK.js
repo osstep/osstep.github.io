@@ -1,0 +1,1 @@
+var e={ready:`brand`,awaiting:`info`,failed:`danger`,draft:`idle`},t={ready:`готово`,awaiting:`ждёт ответов`,failed:`не вышло`,draft:`черновик`};function n(e,n){return e===`ready`&&n>0?`готово с оговорками`:t[e]??e}function r(t,n){return t===`ready`&&n>0?`warn`:e[t]??`idle`}export{r as i,e as n,n as r,t};
