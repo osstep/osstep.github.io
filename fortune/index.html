@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>УП - Колесо фортуны</title>
+    <title>УП — Слоты фортуны</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -34,20 +34,25 @@
       </header>
 
       <p class="photo-disclaimer glass-panel" role="note">
-        Фотографии участников и фоновые картинки секторов загружаются только локально и сбрасываются
+        Фотографии участников и фоновые картинки барабанов загружаются только локально и сбрасываются
         после обновления страницы.
       </p>
 
       <main class="layout">
         <section class="wheel-section">
           <div class="wheel-frame glass-panel">
-            <div class="wheel-pointer" aria-hidden="true"></div>
-            <div class="wheel-wrap">
-              <canvas
-                id="wheel-canvas"
-                width="720"
-                height="720"
-                aria-label="Колесо фортуны"></canvas>
+            <div class="slot-machine">
+              <div class="slot-cabinet">
+                <div class="slot-marquee" aria-hidden="true">Фортуна</div>
+                <div class="slot-window" aria-hidden="true">
+                  <div class="slot-reel"></div>
+                  <div class="slot-reel"></div>
+                  <div class="slot-reel"></div>
+                </div>
+              </div>
+              <button class="slot-lever" id="slot-lever" type="button" aria-label="Потянуть ручку и запустить барабаны">
+                <span class="lever-arm" aria-hidden="true"></span>
+              </button>
             </div>
             <p class="wheel-hint" id="wheel-hint">
               Добавьте участников и нажмите «Крутить» (достаточно одного).
@@ -71,6 +76,22 @@
         </aside>
       </main>
     </div>
+
+    <dialog class="topup" id="topup" aria-labelledby="topup-title">
+      <form method="dialog">
+        <button class="topup-close" aria-label="Закрыть" autofocus>×</button>
+        <h2 id="topup-title">Пополнение баланса</h2>
+        <div class="topup-amount"><span>5 000</span><span>₸</span></div>
+        <div class="topup-offer">
+          <span class="topup-bonus">2 000 тенге бонусом на счет</span>
+          <div class="topup-options" aria-hidden="true">
+            <span>5 000</span><span>10 000</span><span>15 000</span>
+          </div>
+          <button class="topup-pay">Пополнить <i aria-hidden="true">VISA</i><b aria-hidden="true"></b></button>
+        </div>
+        <p>Шутка! Закройте окно и крутите бесплатно.</p>
+      </form>
+    </dialog>
 
     <!-- Winner overlay -->
     <div id="winner-overlay" class="winner-overlay" hidden aria-hidden="true">
@@ -108,7 +129,7 @@
           <button type="button" class="icon-btn" id="modal-close" title="Закрыть (X)">×</button>
         </div>
         <p class="modal-note">
-          Перетащите строки за ⋮⋮, чтобы изменить порядок на колесе. Фон сектора: картинка «Фон»
+          Перетащите строки за ⋮⋮, чтобы изменить порядок на барабанах. Фон карточки: картинка «Фон»
           (приоритет) или цвет / палитра «Авто».
         </p>
         <ul class="participant-list" id="participant-list"></ul>
