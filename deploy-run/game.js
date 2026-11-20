@@ -21,6 +21,15 @@ let world, localSlot = 0;
 function player(slot, x = 34) {
   return {slot, x, y: 178 + slot * 14, face: 1, cooldown: 0, weapon: 'pistol', shield: 0};
 }
+const mobOrder = ['shooter', 'ram', 'tank', 'bomber', 'shooter', 'ram', 'bomber'];
+const blastRadius = 40;
+function spawnMob(sector, index, x, y) {
+  const services = sectorServices[sector];
+  const kind = mobOrder[(index + sector) % mobOrder.length];
+  return {name:services[index % services.length], kind, x, y, sector,
+    hp:kind === 'tank' ? 5 : 2, armor:kind === 'tank' ? 4 : 0,
+    cooldown:1 + (index % 6) * .17, charge:0, dash:0, aim:0};
+}
 function newWorld() {
   const enemies = [], pickups = [];
   for (let sector = 0; sector < sectors.length; sector++) {
@@ -28,33 +37,39 @@ function newWorld() {
     drops.forEach((weapon, i) => pickups.push({
       weapon, sector, x: sector * sectorLength + 125 + i * 225, y: 178 + (i * 37) % 90,
     }));
-    for (let i = 0; i < sectorServices[sector].length; i++) {
-      enemies.push({name: sectorServices[sector][i], x: 215 + sector * sectorLength + i * 208, y: 175 + (i * 29) % 95,
-        drone: i % 2 === 1, hp: i % 2 === 1 ? 2 : 3, sector, cooldown: 1 + i * .17, charge: 0});
+    const services = sectorServices[sector];
+    for (let i = 0; i < services.length * 2; i++) {
+      enemies.push(spawnMob(sector, i, 165 + sector * sectorLength + i * 104, 175 + (i * 29) % 95));
     }
   }
   return {players: [player(0)], enemies, pickups, shots: [], bolts: [], strikes: [], effects: [], sounds: {shot:0, hit:0, hurt:0, alarm:0, boss:0}, ambushed: false, bossSpawned: false, reinforcementsSent: 0, hp: 12, shield: 0, sector: 0, phase: 'play'};
 }
-// Each extra teammate adds four service replicas to the current sector.
 function reinforcementsLeft() {
   if (world.bossSpawned) return 0;
-  return Math.max(0, 4 * (world.players.length - 1) - world.reinforcementsSent);
+  const team = world.players.length;
+  const extra = (2 ** world.sector - 1) * (9 + 4 * team);
+  return Math.max(0, 4 + 7 * (team - 1) + extra - world.reinforcementsSent);
 }
 function reinforce() {
   const remaining = reinforcementsLeft();
   if (!remaining) return;
   const sector = world.sector;
-  const active = world.enemies.filter(e => e.sector === sector).length;
-  if (active > world.players.length) return;
   const front = Math.max(...world.players.map(p => p.x));
+  const progress = clamp((front - sector * sectorLength) / (sectorLength - 80), 0, 1);
+  const waveSize = world.players.length + 1 + sector + Math.floor(3 * progress);
+  const active = world.enemies.filter(e => e.sector === sector && e.x <= front + 420).length;
+  if (active > waveSize) return;
+  // A quadratic release curve keeps more of the reserve for the final stretch.
+  const released = Math.ceil((remaining + world.reinforcementsSent) * progress ** 2);
+  const available = released - world.reinforcementsSent;
+  if (available <= 0) return;
   const end = (sector + 1) * sectorLength;
-  const batch = Math.min(remaining, world.players.length);
+  const batch = Math.min(available, waveSize);
   for (let i = 0; i < batch; i++) {
     const n = world.reinforcementsSent++;
     const x = Math.min(front + 160 + i * 38, end - 16 - i * 17);
     const y = 167 + (n * 41) % 110;
-    const name = sectorServices[sector][n % sectorServices[sector].length];
-    world.enemies.push({name, x, y, drone:true, hp:2, sector, cooldown:1.1 + .16*i, charge:0});
+    world.enemies.push(spawnMob(sector, n, x, y));
     burst(x, y-10, '#cb9eff');
   }
 }
@@ -69,8 +84,9 @@ function ambush() {
   for (let i = 0; i < count; i++) {
     const x = Math.max(12, anchor - 100 - i * 22);
     const y = 175 + (sector * 37 + i * 31) % 98;
-    world.enemies.push({name:sectorServices[sector][i], x, y, sector, drone:true,
-      hp:2, cooldown:1, charge:0, arrival:1.4});
+    const mob = spawnMob(sector, i + 3, x, y);
+    mob.arrival = 1.4;
+    world.enemies.push(mob);
   }
   world.ambushed = true;
   world.sounds.alarm++;
@@ -106,6 +122,41 @@ function attack(e, target, distance, dt) {
   if (e.cooldown <= 0) {
     e.aim = Math.atan2(target.y - e.y, target.x - e.x);
     e.charge = e.boss ? .85 : .55;
+  }
+}
+function meleeAttack(e, target, d, dt) {
+  if (e.kind === 'ram' && e.dash > 0) {
+    e.x = clamp(e.x + Math.cos(e.aim)*260*dt, 10, (e.sector+1)*sectorLength);
+    e.y = clamp(e.y + Math.sin(e.aim)*260*dt, 163, 281);
+    e.dash -= dt;
+    const hit = world.players.find(p => Math.hypot(p.x-e.x, p.y-e.y) < 16);
+    if (hit) { hurt(hit, 2); e.dash = 0; }
+    return;
+  }
+  if (e.charge > 0) {
+    e.charge = Math.max(0, e.charge - dt);
+    if (e.charge > 0) return;
+    if (e.kind === 'ram') {
+      e.dash = .55;
+      e.cooldown = 1.35;
+    } else {
+      burst(e.x, e.y, '#ff965b', blastRadius);
+      for (const p of world.players) {
+        if (Math.hypot(p.x-e.x, p.y-e.y) <= blastRadius) hurt(p, 2);
+      }
+      e.hp = 0;
+    }
+    return;
+  }
+  e.cooldown -= dt;
+  const ram = e.kind === 'ram';
+  if (e.cooldown <= 0 && d < (ram ? 140 : 34)) {
+    e.aim = Math.atan2(target.y-e.y, target.x-e.x);
+    e.charge = ram ? .65 : .9;
+  } else if (d > 1 && d < 460) {
+    const travel = Math.min(d, (ram ? 43 : 54)*dt);
+    e.x += (target.x-e.x)/d*travel;
+    e.y += (target.y-e.y)/d*travel;
   }
 }
 function bossStrikes(boss, dt) {
@@ -181,13 +232,18 @@ function step(dt, inputs) {
     const dist = p => Math.hypot(p.x - e.x, p.y - e.y);
     const target = w.players.reduce((a, b) => dist(a) < dist(b) ? a : b);
     const d = dist(target);
+    if (e.kind === 'ram' || e.kind === 'bomber') {
+      meleeAttack(e, target, d, dt);
+      continue;
+    }
     if (e.boss) bossStrikes(e, dt);
-    if (e.drone || e.boss) attack(e, target, d, dt);
-    if ((e.drone || e.boss) && !e.charge && d < 460 && d > (e.boss ? 70 : 1)) {
+    if (e.kind === 'shooter' || e.boss) attack(e, target, d, dt);
+    const stopAt = e.boss ? 70 : e.kind === 'shooter' ? 125 : 1;
+    if (!e.charge && d < 460 && d > stopAt) {
       e.x += (target.x - e.x) / d * 28 * dt;
       e.y += (target.y - e.y) / d * 28 * dt;
     }
-    if (d < (e.boss ? 24 : 15)) hurt(target, e.boss ? 2 : 1);
+    if (d < (e.boss ? 24 : 15)) hurt(target, e.boss || e.kind === 'tank' ? 2 : 1);
   }
   updateStrikes(dt);
   for (const bolt of w.bolts) {
@@ -203,8 +259,12 @@ function step(dt, inputs) {
     const hit = w.enemies.find(e => e.sector === w.sector && !(e.arrival > 0) && e.hp > 0 && Math.abs(e.x - shot.x) < (e.boss ? 28 : 13) && Math.abs(e.y - 8 - shot.y) < 12);
     if (hit) {
       w.sounds.hit++;
-      hit.hp = Math.max(0, hit.hp - weapons[shot.weapon].damage); shot.life = 0;
-      burst(shot.x, shot.y, hit.hp ? '#fff4aa' : '#ff967d', hit.hp ? 7 : (hit.boss ? 34 : 18));
+      const damage = weapons[shot.weapon].damage;
+      const absorbed = Math.min(hit.armor || 0, damage);
+      if (absorbed) hit.armor -= absorbed;
+      hit.hp = Math.max(0, hit.hp - damage + absorbed);
+      shot.life = 0;
+      burst(shot.x, shot.y, absorbed ? '#8edaff' : hit.hp ? '#fff4aa' : '#ff967d', hit.hp ? 7 : (hit.boss ? 34 : 18));
     }
   }
   w.shots = w.shots.filter(s => s.life > 0);
@@ -257,7 +317,7 @@ function human(p,cam,t) {
   rect(4,-12,10,4,'#a6bec1');rect(12,-12,3,3,weapons[p.weapon].color);ctx.restore();
 }
 function monster(e,cam,t) {
-  const x=e.x-cam,y=e.y+(e.drone?Math.sin(t*3+e.x)*2:0);
+  const x=e.x-cam,y=e.y+(e.kind==='shooter'?Math.sin(t*3+e.x)*2:0);
   if(e.arrival > 0) {
     const radius = 6 + Math.round(e.arrival * 7);
     rect(x-radius,y,2*radius,2,'#ffbc82');
@@ -274,7 +334,10 @@ function monster(e,cam,t) {
     label(caption, left, top+8, e.charge > 0 ? '#ffcf9c' : '#eef1e4', 8);
     ctx.restore();
   }
-  if(e.charge > 0) {
+  if(e.kind === 'bomber' && e.charge > 0) {
+    ctx.save(); ctx.strokeStyle = '#ffaf72'; ctx.fillStyle = 'rgba(255,120,65,.18)';
+    ctx.beginPath(); ctx.arc(x,y,blastRadius,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.restore();
+  } else if(e.charge > 0) {
     ctx.save(); ctx.strokeStyle = '#ffba91'; ctx.setLineDash([4,4]);
     ctx.beginPath(); ctx.moveTo(x,y-10);
     ctx.lineTo(x+Math.cos(e.aim)*140,y-10+Math.sin(e.aim)*140); ctx.stroke(); ctx.restore();
@@ -285,7 +348,17 @@ function monster(e,cam,t) {
     for(const side of [-1,1]) {
       rect(x+side*18-3,y-43,6,9,'#c594a2'); rect(x+side*18-4,y-6,8,8,'#d98985');
     }
-  } else if(e.drone) {
+  } else if(e.kind === 'tank') {
+    rect(x-13,y-17,26,16,'#465f71'); rect(x-15,y-6,30,6,'#283c49');
+    rect(x-7,y-22,14,8,'#8baab7'); rect(x-4,y-19,8,2,'#ffbd87');
+    for(let i=0;i<e.armor;i++) rect(x-12+i*6,y-14,5,6,'#91dff3');
+  } else if(e.kind === 'ram') {
+    rect(x-11,y-13,22,11,'#c9913c'); rect(x-6,y-19,12,8,'#f7c969');
+    rect(x-13,y-18,4,8,'#fff0b2'); rect(x+9,y-18,4,8,'#fff0b2');
+  } else if(e.kind === 'bomber') {
+    rect(x-8,y-17,16,15,'#c76249'); rect(x-4,y-20,8,4,'#7f453e');
+    rect(x-3,y-13,6,6,e.charge > 0 ? '#fff6ad' : '#ffb96a');
+  } else if(e.kind === 'shooter') {
     rect(x-13,y-17,26,10,'#332f49');rect(x-9,y-21,18,17,'#9364ad');
     rect(x-7,y-16,14,6,'#291d37');rect(x-5,y-15,4,2,'#ff8ca4');rect(x+2,y-15,4,2,'#ff8ca4');
     rect(x-6,y-4,3,4,'#dc8ed5');rect(x+3,y-4,3,4,'#dc8ed5');
@@ -300,7 +373,7 @@ function draw(t, active) {
   scenery(cam);
   if(!active) {
     human(player(0,415),0,t);human(player(1,443),0,t);
-    monster({name:sectorServices[0][1],x:535,y:198,drone:true},0,t);monster({name:sectorServices[0][0],x:574,y:231},0,t);return;
+    monster({name:sectorServices[0][1],x:535,y:198,kind:'shooter'},0,t);monster({name:sectorServices[0][0],x:574,y:231,kind:'tank',armor:4},0,t);return;
   }
   const gate = ((world.sector+1)*sectorLength)-cam;
   rect(gate,151,3,137,'#beef83');label('EXIT',gate-10,147,'#beef83');
