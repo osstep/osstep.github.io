@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deploy Run — кооперативная аркада</title>
+<link rel="stylesheet" href="style.css">
+<header><b><i>»</i> DEV<span>/</span>ARCADE</b><small>КООПЕРАТИВ · 1–8 ИГРОКОВ</small></header>
+<main>
+<section class="stage">
+<canvas width="640" height="300" aria-label="Игровое поле — ночной технопарк"></canvas>
+<div class="panel" id="panel">
+<small id="eyebrow">ОПЕРАЦИЯ / НОЧНОЙ РЕЛИЗ</small>
+<h1 id="title">DEPLOY<br><em>RUN</em></h1>
+<p id="message">Уклоняйся от залпов ИИ-дронов.<br>Защити релиз и победи босса chats в проде.</p>
+<div class="actions"><button id="primary">Создать комнату ↗</button><button class="secondary" id="solo">Играть соло</button></div>
+</div>
+</section>
+<div class="bar"><span id="status" role="status">● &nbsp; АРКАДА ГОТОВА</span><button id="sound" aria-pressed="true">Звук: вкл.</button><button id="invite" hidden>Скопировать ссылку</button><button id="leave" hidden>Выйти</button></div>
+<footer><div><small>УПРАВЛЕНИЕ</small><p><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> движение &nbsp; <kbd>Пробел</kbd> огонь · наступи на пушку, чтобы подобрать</p></div><div><small>МАРШРУТ</small><p>Бэклог <i>→</i> Стейджинг <i>→</i> Прод</p></div></footer>
+</main><script src="game.js"></script><script src="audio.js"></script><script src="room.js"></script>
+</html>
