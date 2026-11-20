@@ -10,6 +10,29 @@ world = newWorld();
 function announce() {
   statusLine.textContent = (mode === 'solo' ? 'СОЛО' : 'ОНЛАЙН') + ' · ИГРОКОВ ' + world.players.length + '/' + colors.length;
 }
+function lobby() {
+  clearTimeout(deadline);
+  panel.hidden = false;
+  leave.hidden = false;
+  solo.hidden = true;
+  primary.hidden = mode !== 'host';
+  primary.disabled = mode !== 'host';
+  primary.textContent = 'Старт';
+  el('title').textContent = 'Лобби';
+  el('message').textContent = mode === 'host'
+    ? 'Отправьте ссылку коллегам и нажмите «Старт», когда все соберутся.'
+    : 'Вы в комнате. Ждём, когда ведущий начнёт игру.';
+  announce();
+}
+function broadcastState() {
+  for (const c of clients.values()) {
+    if (c.open && c.bufferSize < 2) c.send({type:'state', world});
+  }
+}
+function rosterChanged() {
+  announce();
+  if (world.phase === 'lobby') broadcastState();
+}
 function enter() {
   resetSounds(world.sounds);
   clearTimeout(deadline);
@@ -27,6 +50,7 @@ function menu() {
   for (const key in inputs) delete inputs[key];
   world = newWorld(); localSlot = 0;
   panel.hidden = false; invite.hidden = leave.hidden = true;
+  primary.hidden = false;
   primary.disabled = solo.disabled = false; solo.hidden = false;
   primary.textContent = room ? 'Войти в комнату ↗' : 'Создать комнату ↗';
   el('title').innerHTML = 'DEPLOY<br><em>RUN</em>';
@@ -68,14 +92,14 @@ async function online() {
         if (slot < 0) { c.send({type:'full'}); setTimeout(()=>c.close(),300); return; }
         clients.set(slot,c);
         world.players.push(player(slot,world.players[0].x));
-        c.send({type:'welcome',slot,world}); announce();
+        c.send({type:'welcome',slot,world}); rosterChanged();
         c.on('data', mask => {
-          if (clients.get(slot) === c && Number.isInteger(mask)) inputs[slot] = mask & 31;
+          if (clients.get(slot) === c && world.phase === 'play' && Number.isInteger(mask)) inputs[slot] = mask & 31;
         });
         function remove() {
           if(clients.get(slot) !== c) return;
           clients.delete(slot); delete inputs[slot];
-          world.players = world.players.filter(p=>p.slot!==slot); announce();
+          world.players = world.players.filter(p=>p.slot!==slot); rosterChanged();
         }
         c.on('close',remove); c.on('error',remove);
       });
@@ -85,19 +109,21 @@ async function online() {
       if(!room) {
         mode = 'host'; inviteUrl = new URL(location.href);
         inviteUrl.hash = new URLSearchParams({room:id});
-        invite.hidden = false; enter(); return;
+        invite.hidden = false; world.phase = 'lobby'; lobby(); return;
       }
       uplink = session.connect(room,{reliable:true});
       uplink.on('data', msg => {
         if(peer !== session || !msg) return;
         if(msg.type === 'full') return fail('Комната заполнена. Все восемь мест заняты.');
         if(msg.type === 'welcome') {
-          world = msg.world; localSlot = msg.slot; mode = 'guest'; enter();
+          world = msg.world; localSlot = msg.slot; mode = 'guest';
+          if (world.phase === 'lobby') lobby();
+          else enter();
         } else if(msg.type === 'state' && mode === 'guest') {
-          const ended = world.phase !== 'play';
+          const previousPhase = world.phase;
           const count = world.players.length;
           world = msg.world;
-          if(ended && world.phase === 'play') enter();
+          if(previousPhase !== 'play' && world.phase === 'play') enter();
           if(count !== world.players.length) announce();
         }
       });
@@ -113,12 +139,16 @@ function restart() {
 primary.onclick = () => {
   unlockAudio();
   if (mode === 'menu') online();
-  else restart();
+  else if (mode === 'host' && world.phase === 'lobby') {
+    world.phase = 'play';
+    enter();
+    broadcastState();
+  } else if (mode === 'host' || mode === 'solo') restart();
 };
 solo.onclick = () => { unlockAudio(); mode = 'solo'; enter(); };
 leave.onclick = () => menu();
 invite.onclick = async () => {
-  try { await navigator.clipboard.writeText(inviteUrl.href); statusLine.textContent = 'Ссылка скопирована · отправьте её коллегам'; }
+  try { await navigator.clipboard.writeText(inviteUrl.href); announce(); statusLine.textContent += ' · Ссылка скопирована'; }
   catch { window.prompt('Ссылка для коллег',inviteUrl.href); }
   invite.blur();
 };
@@ -139,16 +169,16 @@ function finish() {
   panel.hidden = false; input(0);
   el('title').textContent = world.phase === 'won' ? 'В проде!' : 'Откат!';
   el('message').textContent = world.phase === 'won' ? 'Команда закрыла бэклог и доставила релиз.' : 'Здоровье команды закончилось.';
-  solo.hidden = true; primary.disabled = mode === 'guest';
+  primary.hidden = false; solo.hidden = true; primary.disabled = mode === 'guest';
   primary.textContent = mode === 'guest' ? 'Ждём ведущего…' : 'Ещё один забег';
 }
 menu();
 let previous = performance.now(), broadcastAt = 0;
 function frame(now) {
-  const active = ['host','guest','solo'].includes(mode);
+  const active = world.phase !== 'lobby' && ['host','guest','solo'].includes(mode);
   if(mode === 'host' || mode === 'solo') step(Math.min(.05,(now-previous)/1000),inputs);
-  if(mode === 'host' && now >= broadcastAt) {
-    for(const c of clients.values()) if(c.open && c.bufferSize < 2) c.send({type:'state',world});
+  if(active && mode === 'host' && now >= broadcastAt) {
+    broadcastState();
     broadcastAt = now + 50;
   }
   if(active) playSounds(world.sounds);
